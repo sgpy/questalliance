@@ -6,6 +6,7 @@ USER_HOME="/home/vagrant"
 TOX_INI="/vagrant/config/tox.ini"
 WORKSPACE_HOME="${USER_HOME}/sandbox"
 PROJECT_HOME="${WORKSPACE_HOME}/projects"
+NGROCK_URL="https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
 
 # ------------ #
 # Env settings #
@@ -19,6 +20,15 @@ sudo echo "LC_ALL=en_US.utf-8" >> /etc/environment
 # -------------------- #
 
 sudo yum install nmap wget gcc openssl-devel bzip2-devel libffi-devel unzip -y
+
+# --------- #
+# Get ngrok #
+# --------- #
+
+cd /usr/bin
+sudo wget ${NGROCK_URL}
+sudo unzip ngrok-stable-linux-amd64.zip
+sudo rm ngrok-stable-linux-amd64.zip
 
 # ---------- #
 # Get Python #
