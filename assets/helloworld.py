@@ -3,8 +3,12 @@ from flask import Flask, request, make_response, jsonify
 import logging
 import json
 import collections
+import requests
 
 app = Flask(__name__)
+
+seeding_question = 'Hi! May I have your user ID please?'
+empty_options = []
 
 source_question = 'How did you come to know about Quest App platform?'
 source_options = ['1. My teacher told me to use it',
@@ -68,32 +72,43 @@ def extract_payload():
     body = request.get_json(force=True)
     return headers, body
 
-def welcome():
-    return _suggestion_payload_wrapper(source_question, source_options)
+def welcome(*args):
+    return _suggestion_payload_wrapper(seeding_question, empty_options)
 
-def source_confirmation():
+def id_confirmation(*args):
+    id = args[0] # further processing
+    greeting = 'Hello {0}! '.format(getNameFromID(id))
+    return _suggestion_payload_wrapper(greeting+source_question, source_options)
+
+def source_confirmation(*args):
     return _suggestion_payload_wrapper(survey_question, yes_no_options)
 
-def survey_confirmation():
+def survey_confirmation(*args):
     return _suggestion_payload_wrapper(fav_question, fav_options)
 
+def getNameFromID(id):
+    URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(id)
+    r = requests.get(url=URL)
+    return r.json()['student_data']['stud_first_name']
+
+intent_map = {  'Default Welcome Intent': welcome,
+                'ID confirmation': id_confirmation,
+                'Source confirmation': source_confirmation,
+                'Survey confirmation': survey_confirmation,
+            }
 
 @app.route('/')
 def hello():
     return "Saurav says Hello World!"
-
-intent_map = {  'Default Welcome Intent': welcome,
-                'Source confirmation': source_confirmation,
-                'Survey confirmation': survey_confirmation,
-            }
 
 @app.route('/api/endpoint', methods=['GET', 'POST'])
 def questbot():
     req = request.get_json(force=True)
     query_text = req.get("queryResult").get("queryText")
     intent = req.get("queryResult").get("intent").get("displayName")
+    logging.info(query_text)
     if intent in intent_map:
-        return intent_map.get(intent)()
+        return intent_map.get(intent)(query_text)
 
     response = {'fulfillmentText': 'queryText: %s, intent not found: %s' % (query_text, intent)}
     return make_response(jsonify(response))
