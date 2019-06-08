@@ -7,7 +7,6 @@ import collections
 app = Flask(__name__)
 
 
-
 source_question = 'How did you come to know about Quest App platform?'
 source_options = [ '1. My teacher told me to use it',
                    '2. I found the app on playstore and downloaded it',
@@ -105,19 +104,26 @@ def fav_confirmation():
 def digital_confirmation():
     return _suggestion_payload_wrapper(digitaldetails_question, [])
 
-#TODO
-def digital_invalid(): pass
+
+def digital_invalid():
+    return _suggestion_payload_wrapper(digital_question, yes_no_options)
 
 
 def digital_details():
     return _suggestion_payload_wrapper(mobile_question, yes_no_options)
 
+
 def digital_negation():
     return _suggestion_payload_wrapper(mobile_question, yes_no_options)
 
-#TODO
-def mobile_confirmation(): pass
-def mobile_invalid(): pass
+
+def mobile_confirmation():
+    return _suggestion_payload_wrapper(facebook_question, yes_no_options)
+
+
+def mobile_invalid():
+    return _suggestion_payload_wrapper(mobile_question, yes_no_options)
+
 
 def mobile_negation():
     return _suggestion_payload_wrapper(others_question, others_options)
@@ -130,26 +136,36 @@ def mobile_others():
 def facebook_confirmation():
     return _suggestion_payload_wrapper(whatsapp_question, yes_no_options)
 
-#TODO
-def facebook_invalid(): pass
+
+def facebook_invalid():
+    return _suggestion_payload_wrapper(facebook_question, yes_no_options)
+
 
 def whatsapp_confirmation():
     return _suggestion_payload_wrapper(language_question, [])
 
-#TODO
-def whatsapp_invalid(): pass
+
+def whatsapp_invalid():
+    return _suggestion_payload_wrapper(whatsapp_question, yes_no_options)
 
 
 def survey_invalid():
     return _suggestion_payload_wrapper(survey_question, yes_no_options)
 
+
 def source_invalid():
     return _suggestion_payload_wrapper(source_question, yes_no_options)
+
+
+def language_confirmation():
+    req_json = request.get_json(force=True)
+    answers = _give_me_cache_space(req_json)
+    # TODO: end of survey, call couse suggestion api here
+    return _suggestion_payload_wrapper(', '.join(answers), [])
 
 # TODO
 def fallback(): pass
 def fav_invalid(): pass
-def language_confirmation(): pass
 def language_invalid(): pass
 def callback_query(): pass
 
