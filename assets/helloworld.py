@@ -194,38 +194,38 @@ intent_map = {  'Default Welcome Intent': welcome,
                 'callback_query': callback_query,
             }
 
-def saveQuestContext(req_json, user_input, reset=False):
+def _give_me_cache_space(req_json):
     output_contexts = req_json.get('queryResult').get('outputContexts')
 
     # context_name pattern: 'projects/$bot_id/agent/sessions/$session_id/contexts/quest_context'
     prefix = output_contexts[0]['name'].split('/')[:-1]
     quest_context_name = '/'.join(prefix + ['quest_context'])
 
-    def context_filter(context):
-        return context if context.get('name', '') == quest_context_name else None
-
-    result = filter(context_filter, output_contexts)
-
     quest_context = None
-    if not result:
+    for context in output_contexts:
+        if context.get('name', '') == quest_context_name:
+            quest_context = context
+            break
+
+    if not quest_context:
         logging.info('context: %s not found, build a new one ' % quest_context_name)
         quest_context = {
-          'name': quest_context_name,
-          'lifespanCount': 99,
-          'parameters': {'answers': [], }
+            'name': quest_context_name,
+            'lifespanCount': 99,
+            'parameters': {'answers': [], }
         }
         output_contexts.append(quest_context)
-    else:
-        quest_context = result[0]
-    if reset:
-        quest_context['parameters']['answers'] = []
-    else:
-        quest_context['parameters']['answers'].append(user_input)
-    return {'outputContexts': output_contexts}
+    return quest_context['parameters']['answers']
+
+
+def saveQuestContext(req_json, user_input):
+    answers = _give_me_cache_space(req_json)
+    answers.append(user_input)
 
 
 def reset_context(req_json):
-    return saveQuestContext(req_json, None, reset=True)
+    answers = _give_me_cache_space(req_json)
+    answers.clear()
 
 
 def _fetch_user_input(req_json):
@@ -252,20 +252,18 @@ def questbot():
                           'parameters': {'answers': []}}]]}
     """
     req_json = request.get_json(force=True)
-
     user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
 
     if intent in intent_map:
         response_json = intent_map.get(intent)()
-        output_contexts = saveQuestContext(req_json, user_input)
+        saveQuestContext(req_json, user_input)
         if intent == 'Default Welcome Intent':
             logging.info('RESET QUEST CONTEXT')
-            output_contexts = reset_context(req_json)
-        response_json.update(output_contexts)
-        import pprint
-        print '>>>>>>> ', user_input
-        pprint.pprint(response_json)
+            reset_context(req_json)
+
+        output_contexts = req_json.get('queryResult').get('outputContexts')
+        response_json.update({'output_contexts': output_contexts})
         return make_response(jsonify(response_json))
 
     response = {'fulfillmentText': 'queryText: %s, intent not found: %s' % (user_input, intent)}
