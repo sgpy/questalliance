@@ -3,9 +3,12 @@ from flask import Flask, request, make_response, jsonify, session
 import logging
 import json
 import collections
+import requests
 
 app = Flask(__name__)
 
+seeding_question = 'Hi! May I have your user ID please?'
+empty_options = []
 
 source_question = 'How did you come to know about Quest App platform?'
 source_options = [ '1. My teacher told me to use it',
@@ -84,30 +87,35 @@ def extract_payload():
     body = request.get_json(force=True)
     return headers, body
 
+def getNameFromID(user_id):
+    URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(user_id)
+    r = requests.get(url=URL)
+    return r.json()['student_data']['stud_first_name']
 
 def welcome():
-    return _suggestion_payload_wrapper(survey_question, yes_no_options)
+    return _suggestion_payload_wrapper(seeding_question, empty_options)
 
+def id_confirmation():
 
-def survey_confirmation():
-    return _suggestion_payload_wrapper(source_question, source_options)
-
+    req_json = request.get_json(force=True)
+    user_id = _fetch_user_input(req_json) # further processing
+    greeting = 'Hello {0}! '.format(getNameFromID(user_id))
+    return _suggestion_payload_wrapper(greeting+survey_question, yes_no_options)
 
 def source_confirmation():
     return _suggestion_payload_wrapper(fav_question, fav_options)
 
+def survey_confirmation():
+    return _suggestion_payload_wrapper(source_question, source_options)
 
 def fav_confirmation():
     return _suggestion_payload_wrapper(digital_question, yes_no_options)
 
-
 def digital_confirmation():
     return _suggestion_payload_wrapper(digitaldetails_question, [])
 
-
 def digital_invalid():
     return _suggestion_payload_wrapper(digital_question, yes_no_options)
-
 
 def digital_details():
     return _suggestion_payload_wrapper(mobile_question, yes_no_options)
@@ -128,10 +136,8 @@ def mobile_invalid():
 def mobile_negation():
     return _suggestion_payload_wrapper(others_question, others_options)
 
-
 def mobile_others():
     return _suggestion_payload_wrapper(facebook_question, yes_no_options)
-
 
 def facebook_confirmation():
     return _suggestion_payload_wrapper(whatsapp_question, yes_no_options)
@@ -169,8 +175,10 @@ def fav_invalid(): pass
 def language_invalid(): pass
 def callback_query(): pass
 
+
 intent_map = {  'Default Welcome Intent': welcome,
                 'Default Fallback Intent': fallback,
+                'ID Confirmation': id_confirmation,
                 'Source Confirmation': source_confirmation,
                 'Source Invalid': source_invalid,
                 'Survey Confirmation': survey_confirmation,
