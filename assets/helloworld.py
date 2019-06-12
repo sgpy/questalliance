@@ -5,7 +5,7 @@ import json
 import collections
 import requests
 import os
-print ('env', os.getenv('DIALOGFLOW_PROJECT_ID'))
+
 app = Flask(__name__)
 
 seeding_question = 'Hi! May I have your user ID please?'
@@ -165,10 +165,20 @@ def source_invalid():
 
 
 def language_confirmation(request_json):
-    fullfilmentMessage = request_json.get('queryResult').get('fulfillmentMessages')
-    payload = _suggestion_payload_wrapper('', yes_no_options)
-    payload['fulfillmentMessages'][0] = fullfilmentMessage[0]
-    return payload
+    fullfilmentMessages = request_json.get('queryResult').get('fulfillmentMessages')
+    quickReplies = get_quick_replies_from_messages(request_json)
+    response = _suggestion_payload_wrapper('', quickReplies)
+    response['fulfillmentMessages'][0] = fullfilmentMessages[0]
+    return response
+
+def get_quick_replies_from_messages (request_json):
+  fullfilmentMessages = request_json.get('queryResult').get('fulfillmentMessages')
+  # Grab the payload from the message
+  payload = [msg for msg in fullfilmentMessages if msg.get('payload')]
+  quickReplies = []
+  if len(payload) > 0:
+    quickReplies = payload[0].get('payload').get('quickReplies')
+  return quickReplies
 
 # TODO
 def fallback(): pass
@@ -275,8 +285,23 @@ def questbot():
         response_json.update({'output_contexts': output_contexts})
         return make_response(jsonify(response_json))
 
-    response = {'fulfillmentText': 'queryText: %s, intent not found: %s' % (user_input, intent)}
-    return make_response(jsonify(response))
+    # Construct a default response if no intent match is found
+    query_result = req_json.get('queryResult')
+    quick_replies = get_quick_replies_from_messages(req_json)
+    bot_response = {'output_contexts': req_json.get('queryResult').get('outputContexts')}
+    bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
+    if len(quick_replies) > 0:
+      bot_response['fulfillmentMessages'].append({
+        "quickReplies": {
+          "quickReplies": quick_replies
+        }
+      })
+
+    return jsonify(bot_response)
+
+
+    # response = {'fulfillmentText': 'queryText: %s, intent not found: %s' % (user_input, intent)}
+    # return make_response(jsonify(response))
 
 
 if __name__ == '__main__':
