@@ -98,7 +98,7 @@ def welcome():
 def id_confirmation():
 
     req_json = request.get_json(force=True)
-    user_id = _fetch_user_input(req_json) # further processing
+    question, user_id = _fetch_user_input(req_json) # further processing
     greeting = 'Hello {0}! '.format(getNameFromID(user_id))
     return _suggestion_payload_wrapper(greeting+survey_question, yes_no_options)
 
@@ -167,7 +167,7 @@ def language_confirmation():
     req_json = request.get_json(force=True)
     answers = _give_me_cache_space(req_json)
     # TODO: end of survey, call couse suggestion api here
-    return _suggestion_payload_wrapper(', '.join(answers), [])
+    return _suggestion_payload_wrapper(str(answers), [])
 
 # TODO
 def fallback(): pass
@@ -220,7 +220,7 @@ def _give_me_cache_space(req_json):
         quest_context = {
             'name': quest_context_name,
             'lifespanCount': 99,
-            'parameters': {'answers': [], }
+            'parameters': {'answers': {}, }
         }
         output_contexts.append(quest_context)
     return quest_context['parameters']['answers']
@@ -228,7 +228,7 @@ def _give_me_cache_space(req_json):
 
 def saveQuestContext(req_json, user_input):
     answers = _give_me_cache_space(req_json)
-    answers.append(user_input)
+    answers.update(user_input)
 
 
 def reset_context(req_json):
@@ -237,7 +237,9 @@ def reset_context(req_json):
 
 
 def _fetch_user_input(req_json):
-    return req_json.get(u'queryResult').get(u'queryText')
+    question = ','.join(req_json.get(u'queryResult').get(u'parameters').keys())
+    answer = req_json.get(u'queryResult').get(u'queryText')
+    return question, answer
 
 
 def _fetch_intent(req_json):
@@ -257,15 +259,15 @@ def questbot():
                           'name': 'projects/qabotlocal-voalga/agent/sessions/35938982-36c6-8225-3b09-1933c06a52a9/contexts/awaiting_survey'},
                          {'lifespanCount': 98,
                           'name': 'projects/qabotlocal-voalga/agent/sessions/35938982-36c6-8225-3b09-1933c06a52a9/contexts/quest_context',
-                          'parameters': {'answers': []}}]]}
+                          'parameters': {'answers': {}}}]]}
     """
     req_json = request.get_json(force=True)
-    user_input = _fetch_user_input(req_json)
+    question, user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
+    saveQuestContext(req_json, {question: user_input})
 
     if intent in intent_map:
         response_json = intent_map.get(intent)()
-        saveQuestContext(req_json, user_input)
         if intent == 'Default Welcome Intent':
             logging.info('RESET QUEST CONTEXT')
             reset_context(req_json)
