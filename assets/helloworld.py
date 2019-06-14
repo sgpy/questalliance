@@ -4,7 +4,8 @@ import logging
 import json
 import collections
 import requests
-
+import os
+print ('env', os.getenv('DIALOGFLOW_PROJECT_ID'))
 app = Flask(__name__)
 
 seeding_question = 'Hi! May I have your user ID please?'
@@ -165,9 +166,15 @@ def source_invalid():
 
 def language_confirmation():
     req_json = request.get_json(force=True)
-    answers = _give_me_cache_space(req_json)
-    # TODO: end of survey, call couse suggestion api here
-    return _suggestion_payload_wrapper(str(answers), [])
+    # Example: fetch answer dict from cache
+    # answers = _give_me_cache_space(req_json)
+    # return _suggestion_payload_wrapper(str(answers), [])
+
+    fullfilmentMessage = req_json.get('queryResult').get('fulfillmentMessages')
+    payload = _suggestion_payload_wrapper('', yes_no_options)
+    payload['fulfillmentMessages'][0] = fullfilmentMessage[0]
+    return payload
+
 
 # TODO
 def fallback(): pass
