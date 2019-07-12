@@ -8,45 +8,84 @@ import os
 
 app = Flask(__name__)
 
-seeding_question = 'Hi! May I have your user ID please?'
-empty_options = []
+'''
+Survey question flow:
 
-source_question = 'How did you come to know about Quest App platform?'
-source_options = [ '1. My teacher told me to use it',
-                   '2. I found the app on playstore and downloaded it',
-                   '3. A friend told me about it',
-                   '4. I saw the poster about the App' ]
+ Q1: Hi! May I have your user ID please?
+ A1: typing
 
-fav_question = 'What is your favourite thing to do? If not in the list, please type.'
-fav_options = [ '1. Play a sport',
-                   '2. Go to training center/college/school',
-                   '3. Spend time with friends',
-                   '4. Read a book',
-                   '5. Travel to new places' ]
 
-survey_question = 'To help you with your Quest App journey, I need to get some more information. Is that fine with you?'
+ Q2: Hello {user_name}! To help you with your Quest App journey, I need to get some more information. Is that fine with you?
+ A2: 1. Yes / 2. No
+     Yes: Jump to Q3
+     No : I guess, you already know what you should be learning from the platform for now. Let me know if you need my help in future.
 
-digital_question = 'Have you learnt anything using digital learning platform before?'
 
-digitaldetails_question = 'What websites do you use?'
+ Q3: How did you come to know about Quest App platform?
+ A3: 1. My teacher told me to use it
+     2. I found the app on playstore and downloaded it
+     3. A friend told me about it
+     4. I saw the poster about the App
 
-mobile_question = 'Do you have your own mobile phone?'
 
-others_question = 'Whose phone are you using?'
-others_options = ['1. My Mother\'s',
-                   '2. My Father\'s',
-                   '3. My elder Brother\'s',
-                   '4. My elder Sister\'s',
-                   '5. My Friend\'s',
-                   '6. Another relative in the house']
+ Q4: What is your favourite thing to do? If not in the list, please type.
+ A4: 1. Play a sport
+     2. Go to training center/college/school
+     3. Spend time with friends
+     4. Read a book
+     5. Travel to new places
 
-facebook_question = 'Do you have a facebook_account?'
 
-whatsapp_question = 'Do you have a Whatsapp_account?'
+ Q5: Have you learnt anything using digital learning platform before?
+ A5: 1. Yes / 2. No
+     Yes: Jump to Q6
+     No : Jump to Q7
 
-language_question = 'What are the languages you know? You can enter multiple options separated by , like - English, Hindi.'
 
-yes_no_options = [ '1. Yes', '2. No' ]
+ Q6: What websites do you use?
+ A6: typing
+
+
+ Q7: Do you have your own mobile phone?
+ A7: 1. Yes / 2. No
+     Yes: Jump to Q9
+     No : Jump to Q8
+
+
+ Q8: Whose phone are you using?
+ A8: 1. My Mother's
+     2. My Father's
+     3. My elder Brother's
+     4. My elder Sister's
+     5. My Friend's
+     6. Another relative in the house
+
+
+ Q9: Do you have a facebook_account?
+ A9: 1. Yes / 2. No
+
+
+Q10: Do you have a Whatsapp_account?
+A10: 1. Yes / 2. No
+
+
+Q11: What are the languages you know? You can enter multiple options separated by, like - English, Hindi.
+A11: typing
+
+
+Q12: Thanks for completing the survey. I can help you choose the right courses on Quest App. Would you like to look at the Help topics?
+A12: 1. Yes / 2. No
+     Yes: Jump to Q13
+     No : Thanks. Have a good day. You can call me back just type ‘Hi’
+
+
+Q13: Here are the help topics. Please select the one you would like to learn
+A13: 1. English Communication
+     2. IT Skills
+     3. Find A Job
+     4. Start My Own Business
+
+'''
 
 # TODO
 # def _telegram_payload_wrapper(agent, question, options):
@@ -83,97 +122,40 @@ def _suggestion_payload_wrapper(question, options):
     return feedback
 
 
-def extract_payload():
-    headers = request.headers
-    body = request.get_json(force=True)
-    return headers, body
-
 def getNameFromID(user_id):
     URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(user_id)
     r = requests.get(url=URL)
     return r.json()['student_data']['stud_first_name']
 
-def welcome():
-    return _suggestion_payload_wrapper(seeding_question, empty_options)
 
-def id_confirmation():
-
+def welcome(req_json):
     req_json = request.get_json(force=True)
+    logging.info('RESET QUEST CONTEXT')
+    reset_context(req_json)
+    return question_and_answer(req_json)
+
+
+def id_confirmation(req_json):
     question, user_id = _fetch_user_input(req_json) # further processing
-    greeting = 'Hello {0}! '.format(getNameFromID(user_id))
-    return _suggestion_payload_wrapper(greeting+survey_question, yes_no_options)
-
-def source_confirmation():
-    return _suggestion_payload_wrapper(fav_question, fav_options)
-
-def survey_confirmation():
-    return _suggestion_payload_wrapper(source_question, source_options)
-
-def fav_confirmation():
-    return _suggestion_payload_wrapper(digital_question, yes_no_options)
-
-def digital_confirmation():
-    return _suggestion_payload_wrapper(digitaldetails_question, [])
-
-def digital_invalid():
-    return _suggestion_payload_wrapper(digital_question, yes_no_options)
-
-def digital_details():
-    return _suggestion_payload_wrapper(mobile_question, yes_no_options)
+    text = req_json.get('queryResult').get('fulfillmentText')
+    greeting = 'Hello {0}! '.format(getNameFromID(user_id)) + text
+    req_json['queryResult']['fulfillmentText'] = greeting
+    return question_and_answer(req_json)
 
 
-def digital_negation():
-    return _suggestion_payload_wrapper(mobile_question, yes_no_options)
-
-
-def mobile_confirmation():
-    return _suggestion_payload_wrapper(facebook_question, yes_no_options)
-
-
-def mobile_invalid():
-    return _suggestion_payload_wrapper(mobile_question, yes_no_options)
-
-
-def mobile_negation():
-    return _suggestion_payload_wrapper(others_question, others_options)
-
-def mobile_others():
-    return _suggestion_payload_wrapper(facebook_question, yes_no_options)
-
-def facebook_confirmation():
-    return _suggestion_payload_wrapper(whatsapp_question, yes_no_options)
-
-
-def facebook_invalid():
-    return _suggestion_payload_wrapper(facebook_question, yes_no_options)
-
-
-def whatsapp_confirmation():
-    return _suggestion_payload_wrapper(language_question, [])
-
-
-def whatsapp_invalid():
-    return _suggestion_payload_wrapper(whatsapp_question, yes_no_options)
-
-
-def survey_invalid():
-    return _suggestion_payload_wrapper(survey_question, yes_no_options)
-
-
-def source_invalid():
-    return _suggestion_payload_wrapper(source_question, yes_no_options)
-
-
-def language_confirmation(request_json):
-    fullfilmentMessages = request_json.get('queryResult').get('fulfillmentMessages')
-    quickReplies = get_quick_replies_from_messages(request_json)
+def language_confirmation(req_json):
+    fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
+    quickReplies = get_quick_replies_from_messages(req_json)
     response = _suggestion_payload_wrapper('', quickReplies)
     response['fulfillmentMessages'][0] = fullfilmentMessages[0]
     return response
 
-def get_quick_replies_from_messages (request_json):
-  fullfilmentMessages = request_json.get('queryResult').get('fulfillmentMessages')
+
+def get_quick_replies_from_messages (req_json):
+  fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
   # Grab the payload from the message
+  if not fullfilmentMessages:
+    return []
   payload = [msg for msg in fullfilmentMessages if msg.get('payload')]
   quickReplies = []
   if len(payload) > 0:
@@ -181,38 +163,48 @@ def get_quick_replies_from_messages (request_json):
   return quickReplies
 
 
+def question_and_answer(req_json):
+    # req_json = request.get_json(force=True)
+    # Construct a default response if no intent match is found
+    query_result = req_json.get('queryResult')
+    print("*" * 50)
+    from pprint import pprint as pp
+    pp(query_result)
+    print("*" * 50)
+    quick_replies = get_quick_replies_from_messages(req_json)
+    bot_response = {'output_contexts': req_json.get('queryResult').get('outputContexts')}
+    bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
+    if len(quick_replies) > 0:
+        bot_response['fulfillmentMessages'].append({
+            "quickReplies": {
+                "quickReplies": quick_replies
+            }
+        })
+    return bot_response
 
-# TODO
-def fallback(): pass
-def fav_invalid(): pass
-def language_invalid(): pass
-def callback_query(): pass
 
-
-intent_map = {  'Default Welcome Intent': welcome,
-                'Default Fallback Intent': fallback,
+intent_map = {
+                'Default Welcome Intent': welcome,
                 'ID Confirmation': id_confirmation,
-                'Source Confirmation': source_confirmation,
-                'Source Invalid': source_invalid,
-                'Survey Confirmation': survey_confirmation,
-                'Survey Invalid': survey_invalid,
-                'Fav Confirmation': fav_confirmation,
-                'Fav Invalid': fav_invalid,
-                'Digital Confirmation': digital_confirmation,
-                'Digital Negation': digital_negation,
-                'Digital Invalid': digital_invalid,
-                'Digital Details': digital_details,
-                'Mobile Confirmation': mobile_confirmation,
-                'Mobile Invalid': mobile_invalid,
-                'Mobile Negation': mobile_negation,
-                'Mobile Others': mobile_others,
-                'Facebook Confirmation': facebook_confirmation,
-                'Facebook Invalid': facebook_invalid,
-                'Whatsapp Confirmation': whatsapp_confirmation,
-                'Whatsapp Invalid': whatsapp_invalid,
+                'Source Confirmation': question_and_answer,
+                'Source Invalid': question_and_answer,
+                'Survey Confirmation': question_and_answer,
+                'Survey Invalid': question_and_answer,
+                'Fav Confirmation': question_and_answer,
+                'Fav Invalid': question_and_answer,
+                'Digital Confirmation': question_and_answer,
+                'Digital Negation': question_and_answer,
+                'Digital Invalid': question_and_answer,
+                'Digital Details': question_and_answer,
+                'Mobile Confirmation': question_and_answer,
+                'Mobile Invalid': question_and_answer,
+                'Mobile Negation': question_and_answer,
+                'Mobile Others': question_and_answer,
+                'Facebook Confirmation': question_and_answer,
+                'Facebook Invalid': question_and_answer,
+                'Whatsapp Confirmation': question_and_answer,
+                'Whatsapp Invalid': question_and_answer,
                 'Language Confirmation': language_confirmation,
-                'Language Invalid': language_invalid,
-                'callback_query': callback_query,
             }
 
 def _give_me_cache_space(req_json):
@@ -242,6 +234,7 @@ def _give_me_cache_space(req_json):
 def saveQuestContext(req_json, user_input):
     answers = _give_me_cache_space(req_json)
     answers.update(user_input)
+    print(answers)
 
 
 def reset_context(req_json):
@@ -281,31 +274,13 @@ def questbot():
 
     if intent in intent_map:
         response_json = intent_map.get(intent)(req_json)
-        if intent == 'Default Welcome Intent':
-            logging.info('RESET QUEST CONTEXT')
-            reset_context(req_json)
-
         output_contexts = req_json.get('queryResult').get('outputContexts')
         response_json.update({'output_contexts': output_contexts})
         return make_response(jsonify(response_json))
 
     # Construct a default response if no intent match is found
-    query_result = req_json.get('queryResult')
-    quick_replies = get_quick_replies_from_messages(req_json)
-    bot_response = {'output_contexts': req_json.get('queryResult').get('outputContexts')}
-    bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
-    if len(quick_replies) > 0:
-      bot_response['fulfillmentMessages'].append({
-        "quickReplies": {
-          "quickReplies": quick_replies
-        }
-      })
-
+    bot_response = question_and_answer(req_json)
     return jsonify(bot_response)
-
-
-    # response = {'fulfillmentText': 'queryText: %s, intent not found: %s' % (user_input, intent)}
-    # return make_response(jsonify(response))
 
 
 if __name__ == '__main__':
