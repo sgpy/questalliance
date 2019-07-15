@@ -1,11 +1,12 @@
 import os
 import random
+from functools import partial
 
 from backend.admin import connection
 
 from backend.data import load_sudent_data, load_languages
 
-DB = "questalliance.db"
+DB = "/Users/sauravgupta/sandbox/github/questalliance/backend/questalliance.db"
 
 
 @connection
@@ -163,11 +164,13 @@ def mark_survey_complete(conn, user_ids):
         for user_id in user_ids:
             conn.execute(sql, (user_id,))
 
+survey_complete = partial(mark_survey_complete, DB)
 
 def main():
     # total_students = seed()
     # validate_seed(total_students, view=10)
-    mark_survey_complete(DB, [3, 4])
+    # mark_survey_complete(DB, [3, 4])
+    pass
 
 
 if __name__ == '__main__':
