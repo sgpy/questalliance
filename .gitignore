@@ -6,6 +6,8 @@ __pycache__/
 # Vagrant cache
 .vagrant
 
+#pycharm project
+.idea
 # Zips
 *.zip
 
