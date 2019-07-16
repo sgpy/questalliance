@@ -1,12 +1,14 @@
 import os
 import random
 from functools import partial
-
+import os 
 from admin import connection
 
 from data import load_sudent_data, load_languages, load_courses
 
-DB = "/Users/vinay/Sites/questalliance/backend/questalliance.db"
+dir_path = os.path.dirname(os.path.realpath(__file__))
+
+DB = dir_path + '/questalliance.db'
 
 COURSES = ["tk_pk_id",  "tk_tags", "tk_name", "tk_description", "language", "url", "tk_image"]
 
