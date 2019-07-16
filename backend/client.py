@@ -139,6 +139,7 @@ def validate_seed(total_students, view=10):
     for _, user_info in users_info(DB, users).items():
         print(user_info)
 
+find_user_info = partial(users_info, DB)
 
 def seed():
     if os.path.exists(DB):

@@ -3,7 +3,7 @@ import os.path
 
 from flask import Flask, request, make_response, jsonify
 
-from client import survey_complete, search_courses
+from client import survey_complete, search_courses, users_info, find_user_info
 
 app = Flask(__name__)
 
@@ -31,6 +31,19 @@ def find_courses(user):
     resp ={"status": 1, "message": "success", "data": courses}
 
     return make_response(jsonify(resp))
+
+
+
+
+@app.route('/api/sink/user_info/<user>', methods=['GET'])
+def user_info(user):
+    user = int(user)
+    user_info = find_user_info([user])
+    info = user_info[user]
+
+    resp = {"status":"1", "student_data":info}
+    return resp
+
 
 
 def start():
