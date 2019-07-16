@@ -138,6 +138,7 @@ def welcome(req_json):
 
 def id_confirmation(req_json):
     question, user_id = _fetch_user_input(req_json) # further processing
+    saveQuestContext(req_json, {'user_id': user_id})
     text = req_json.get('queryResult').get('fulfillmentText')
     greeting = 'Hello {0}! '.format(getNameFromID(user_id)) + text
     req_json['queryResult']['fulfillmentText'] = greeting
@@ -149,6 +150,11 @@ def language_confirmation(req_json):
     quickReplies = get_quick_replies_from_messages(req_json)
     response = _suggestion_payload_wrapper('', quickReplies)
     response['fulfillmentMessages'][0] = fullfilmentMessages[0]
+
+    answers = _give_me_cache_space(req_json)
+    user_id = answers.get('user_id')
+    URL = 'http://127.0.0.1:1234/api/sink/mark_survey_complete/{0}'.format(user_id)
+    r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
     return response
 
 
@@ -195,7 +201,7 @@ def question_and_answer(req_json):
                 "text": "View more",
                 "postback": "http://google.com"
               }
-            ]         
+            ]
           },
           'platform': 'TELEGRAM'
         })
