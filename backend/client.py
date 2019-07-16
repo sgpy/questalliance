@@ -1,12 +1,14 @@
 import os
 import random
 from functools import partial
+import os 
+from admin import connection
 
-from backend.admin import connection
+from data import load_sudent_data, load_languages, load_courses
 
-from backend.data import load_sudent_data, load_languages, load_courses
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
-DB = "/Users/sauravgupta/sandbox/github/questalliance/backend/questalliance.db"
+DB = dir_path + '/questalliance.db'
 
 COURSES = ["tk_pk_id",  "tk_tags", "tk_name", "tk_description", "language", "url", "tk_image"]
 
@@ -139,6 +141,7 @@ def validate_seed(total_students, view=10):
     for _, user_info in users_info(DB, users).items():
         print(user_info)
 
+find_user_info = partial(users_info, DB)
 
 def seed():
     if os.path.exists(DB):
