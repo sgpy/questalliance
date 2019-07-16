@@ -1,9 +1,9 @@
 import logging
 import os.path
 
-from flask import Flask
+from flask import Flask, request, make_response, jsonify
 
-from backend.client import survey_complete
+from backend.client import survey_complete, search_courses
 
 app = Flask(__name__)
 
@@ -20,6 +20,19 @@ def process(user):
         logger.error(msg, exc_info=e)
         return msg
 
+
+@app.route('/api/sink/find_courses/<user>', methods=['POST'])
+def find_courses(user):
+    req_json = request.get_json(force=True)
+    tags = req_json.get("tags")
+    tags = tags.split(",")
+    tags = [_.strip() for _ in tags]
+    courses = search_courses(tags)
+    resp ={"status": 1, "message": "success", "data": courses}
+
+    return make_response(jsonify(resp))
+
+
 def start():
     logging.basicConfig(filename='app.log', level=logging.DEBUG)
     from backend.client import DB
@@ -32,6 +45,6 @@ def start():
 
     app.run(host='0.0.0.0', port=1234)
 
+
 if __name__ == '__main__':
     start()
-

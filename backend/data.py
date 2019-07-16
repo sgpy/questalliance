@@ -20,6 +20,11 @@ def load_languages():
     rs = generate(file_name="../data/INDIAN_LANGUAGE.csv")
     return rs
 
+
+def load_courses():
+    rs = generate(file_name="../data/courses.csv")
+    return rs
+
 if __name__ == '__main__':
     rs = load_sudent_data()
 

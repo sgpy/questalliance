@@ -4,10 +4,11 @@ from functools import partial
 
 from backend.admin import connection
 
-from backend.data import load_sudent_data, load_languages
+from backend.data import load_sudent_data, load_languages, load_courses
 
 DB = "/Users/sauravgupta/sandbox/github/questalliance/backend/questalliance.db"
 
+COURSES = ["tk_pk_id",  "tk_tags", "tk_name", "tk_description", "language", "url", "tk_image"]
 
 @connection
 def create_user_table(conn):
@@ -18,14 +19,14 @@ def create_user_table(conn):
     conn.execute(sql);
     pass
 
-
 @connection
 def create_course_table(conn):
     sql = \
         """
-        CREATE IF NOT EXIST TABLE courses ();
+        CREATE TABLE IF NOT EXISTS courses (tk_pk_id INTEGER PRIMARY KEY AUTOINCREMENT,  tk_tags VARCHAR(50) DEFAULT "", tk_name VARCHAR(50) DEFAULT "", tk_description VARCHAR(50) DEFAULT "", language VARCHAR(50) DEFAULT "", url VARCHAR(100)  DEFAULT "", tk_image BLOB  DEFAULT "");
         """
     conn.execute(sql);
+    pass
 
 
 @connection
@@ -146,6 +147,7 @@ def seed():
     total_languages = upload_languages(DB)
     upload_language_known(DB, total_students, total_languages)
 
+    upload_course_data(DB)
     return total_students
 
 
@@ -166,11 +168,55 @@ def mark_survey_complete(conn, user_ids):
 
 survey_complete = partial(mark_survey_complete, DB)
 
+@connection
+def upload_course_data(conn):
+    create_course_table(DB)
+    data = load_courses()
+    sql = \
+    """
+    INSERT INTO courses ({}) VALUES ({})
+    """
+
+
+
+
+    for row in data:
+
+        if len(row) > len(COURSES):
+            row = row[:len(COURSES)]
+
+        # row = [_.strip() for _ in row]
+        data_size = len(row)
+        cols = COURSES[0:data_size]
+        cols_placeholders = ",".join(["?" for _ in range(0, len(cols))])
+        sql = sql.format(str(cols)[1:-1], cols_placeholders)
+        with conn:
+            conn.execute(sql, row)
+@connection
+def courses(conn, tags):
+
+
+    sql = \
+    """
+    SELECT * FROM courses WHERE tk_tags IN ({})
+    """
+    sql = sql.format(str(tags)[1:-1])
+    print(sql)
+    with conn:
+        rs = conn.execute(sql)
+
+    result = []
+    for _ in rs:
+        result.append(dict(zip(COURSES, _)))
+    return  result
+
+search_courses = partial(courses, DB)
+
 def main():
     # total_students = seed()
-    # validate_seed(total_students, view=10)
-    # mark_survey_complete(DB, [3, 4])
     pass
+
+
 
 
 if __name__ == '__main__':
