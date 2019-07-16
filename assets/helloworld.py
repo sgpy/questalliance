@@ -206,6 +206,11 @@ def question_and_answer(req_json):
                 "quickReplies": quick_replies
             }
         })
+
+    # we should copy fulfillmentText into fulfillmentMessages together.
+    for item in bot_response['fulfillmentMessages']:
+        if 'text' in item:
+            item['text']['text'] = [query_result.get('fulfillmentText')]
     return bot_response
 
 
