@@ -3,7 +3,7 @@ import os.path
 
 from flask import Flask, request, make_response, jsonify
 
-from backend.client import survey_complete, search_courses
+from client import survey_complete, search_courses
 
 app = Flask(__name__)
 
@@ -35,7 +35,7 @@ def find_courses(user):
 
 def start():
     logging.basicConfig(filename='app.log', level=logging.DEBUG)
-    from backend.client import DB
+    from client import DB
 
     logger = logging.getLogger(__name__)
     if not os.path.exists(DB):

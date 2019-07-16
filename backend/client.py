@@ -2,11 +2,11 @@ import os
 import random
 from functools import partial
 
-from backend.admin import connection
+from admin import connection
 
-from backend.data import load_sudent_data, load_languages, load_courses
+from data import load_sudent_data, load_languages, load_courses
 
-DB = "/Users/sauravgupta/sandbox/github/questalliance/backend/questalliance.db"
+DB = "/Users/vinay/Sites/questalliance/backend/questalliance.db"
 
 COURSES = ["tk_pk_id",  "tk_tags", "tk_name", "tk_description", "language", "url", "tk_image"]
 

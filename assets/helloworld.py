@@ -5,6 +5,7 @@ import json
 import collections
 import requests
 import os
+from courses_lib import find_courses
 
 app = Flask(__name__)
 
@@ -167,6 +168,14 @@ def question_and_answer(req_json):
     # req_json = request.get_json(force=True)
     # Construct a default response if no intent match is found
     query_result = req_json.get('queryResult')
+    data = {
+    'tags': '#Understanding Self'
+    }
+
+    # if (query_result.get('action')) {
+      # We will need to execute an action
+
+    # }
     print("*" * 50)
     from pprint import pprint as pp
     pp(query_result)
@@ -174,6 +183,23 @@ def question_and_answer(req_json):
     quick_replies = get_quick_replies_from_messages(req_json)
     bot_response = {'output_contexts': req_json.get('queryResult').get('outputContexts')}
     bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
+
+    courses = find_courses(data)
+    for course in courses.get('data'):
+      bot_response['fulfillmentMessages'].append({
+        'card': {
+          'title': course.get('tk_name'),
+          'subtitle': "Course description",
+          "buttons": [
+            {
+              "text": "View more",
+              "postback": "http://google.com"
+            }
+          ]         
+        },
+        'platform': 'TELEGRAM'
+      })
+
     if len(quick_replies) > 0:
         bot_response['fulfillmentMessages'].append({
             "quickReplies": {
@@ -285,5 +311,5 @@ def questbot():
 
 if __name__ == '__main__':
     logging.basicConfig(filename='app.log',level=logging.DEBUG)
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000)
 
