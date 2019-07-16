@@ -183,22 +183,22 @@ def question_and_answer(req_json):
     quick_replies = get_quick_replies_from_messages(req_json)
     bot_response = {'output_contexts': req_json.get('queryResult').get('outputContexts')}
     bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
-
-    courses = find_courses(data)
-    for course in courses.get('data'):
-      bot_response['fulfillmentMessages'].append({
-        'card': {
-          'title': course.get('tk_name'),
-          'subtitle': "Course description",
-          "buttons": [
-            {
-              "text": "View more",
-              "postback": "http://google.com"
-            }
-          ]         
-        },
-        'platform': 'TELEGRAM'
-      })
+    if query_result.get('action') == 'ShowCourses':
+      courses = find_courses(data)
+      for course in courses.get('data'):
+        bot_response['fulfillmentMessages'].append({
+          'card': {
+            'title': course.get('tk_name'),
+            'subtitle': "Course description",
+            "buttons": [
+              {
+                "text": "View more",
+                "postback": "http://google.com"
+              }
+            ]         
+          },
+          'platform': 'TELEGRAM'
+        })
 
     if len(quick_replies) > 0:
         bot_response['fulfillmentMessages'].append({
