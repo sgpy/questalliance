@@ -1,5 +1,5 @@
 from flask import Flask, request, make_response, jsonify, session
-
+import dialogflow
 import logging
 import json
 import collections
@@ -8,6 +8,11 @@ import os
 from courses_lib import find_courses
 
 app = Flask(__name__)
+
+entity_types_client = dialogflow.EntityTypesClient()
+
+parent = entity_types_client.project_agent_path('newagent-fc3d4')
+print ('parent', parent)
 
 '''
 Survey question flow:
@@ -145,20 +150,24 @@ def welcome(req_json):
 def id_confirmation(req_json):
     question, user_id = _fetch_user_input(req_json) # further processing
     text = req_json.get('queryResult').get('fulfillmentText')
-
+    username = getNameFromID(user_id)
     if getSurveyStatus(user_id) == '1':
         event_context = {
-                'name': 'trigger_help'
-                # 'parameters': []
+          'name': 'trigger_help',
+          'parameters': {
+            'username': username
+          }
         }
         req_json.update({'followupEventInput': event_context})
     else:
-        greeting = 'Hello {0}! '.format(getNameFromID(user_id)) + text
+        greeting = 'Hello {0}! '.format(username) + text
         req_json['queryResult']['fulfillmentText'] = greeting
+
     return question_and_answer(req_json)
 
 
 def language_confirmation(req_json):
+    print ('Saving response')
     fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
     quickReplies = get_quick_replies_from_messages(req_json)
     response = _suggestion_payload_wrapper('', quickReplies)
@@ -168,12 +177,8 @@ def language_confirmation(req_json):
     user_id = answers.get('user_id')
     URL = 'http://127.0.0.1:1234/api/sink/mark_survey_complete/{0}'.format(user_id)
     r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
-    event_context = {
-            'name': 'trigger_help'
-            # 'parameters': []
-    }
-    response['followupEventInput'] = event_context
-    return response
+    return question_and_answer(req_json)
+    
 
 
 def get_quick_replies_from_messages (req_json):
@@ -192,6 +197,8 @@ def question_and_answer(req_json):
     # req_json = request.get_json(force=True)
     # Construct a default response if no intent match is found
     query_result = req_json.get('queryResult')
+    followupEvent = req_json.get('followupEventInput')
+    
     data = {
     'tags': '#Understanding Self'
     }
@@ -207,7 +214,17 @@ def question_and_answer(req_json):
     quick_replies = get_quick_replies_from_messages(req_json)
     bot_response = {'output_contexts': req_json.get('queryResult').get('outputContexts')}
     bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
-    if query_result.get('action') == 'ShowCourses':
+    bot_response.update({'followupEventInput': followupEvent })
+    action = query_result.get('action')
+
+
+    if followupEvent is None and action == 'ShowHelpTopics':
+      event_context = {
+        'name': 'trigger_help',
+      }
+      bot_response.update({'followupEventInput': event_context})
+
+    if action == 'ShowCourses':
       courses = find_courses(data)
       for course in courses.get('data'):
         bot_response['fulfillmentMessages'].append({
@@ -235,7 +252,7 @@ def question_and_answer(req_json):
     for item in bot_response['fulfillmentMessages']:
         if 'text' in item:
             item['text']['text'] = [query_result.get('fulfillmentText')]
-    bot_response.update({'followupEventInput': req_json.get('followupEventInput')})
+    # 
     return bot_response
 
 
