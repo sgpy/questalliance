@@ -129,6 +129,12 @@ def getNameFromID(user_id):
     return r.json()['student_data']['stud_first_name']
 
 
+def getSurveyStatus(user_id):
+    URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(user_id)
+    r = requests.get(url=URL)
+    return r.json()['student_data']['survey_status']
+
+
 def welcome(req_json):
     req_json = request.get_json(force=True)
     logging.info('RESET QUEST CONTEXT')
@@ -139,8 +145,16 @@ def welcome(req_json):
 def id_confirmation(req_json):
     question, user_id = _fetch_user_input(req_json) # further processing
     text = req_json.get('queryResult').get('fulfillmentText')
-    greeting = 'Hello {0}! '.format(getNameFromID(user_id)) + text
-    req_json['queryResult']['fulfillmentText'] = greeting
+
+    if getSurveyStatus(user_id) == '1':
+        event_context = {
+                'name': 'trigger_help'
+                # 'parameters': []
+        }
+        req_json.update({'followupEventInput': event_context})
+    else:
+        greeting = 'Hello {0}! '.format(getNameFromID(user_id)) + text
+        req_json['queryResult']['fulfillmentText'] = greeting
     return question_and_answer(req_json)
 
 
@@ -149,6 +163,16 @@ def language_confirmation(req_json):
     quickReplies = get_quick_replies_from_messages(req_json)
     response = _suggestion_payload_wrapper('', quickReplies)
     response['fulfillmentMessages'][0] = fullfilmentMessages[0]
+
+    answers = _give_me_cache_space(req_json)
+    user_id = answers.get('user_id')
+    URL = 'http://127.0.0.1:1234/api/sink/mark_survey_complete/{0}'.format(user_id)
+    r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
+    event_context = {
+            'name': 'trigger_help'
+            # 'parameters': []
+    }
+    response['followupEventInput'] = event_context
     return response
 
 
@@ -195,7 +219,7 @@ def question_and_answer(req_json):
                 "text": "View more",
                 "postback": "http://google.com"
               }
-            ]         
+            ]
           },
           'platform': 'TELEGRAM'
         })
@@ -211,6 +235,7 @@ def question_and_answer(req_json):
     for item in bot_response['fulfillmentMessages']:
         if 'text' in item:
             item['text']['text'] = [query_result.get('fulfillmentText')]
+    bot_response.update({'followupEventInput': req_json.get('followupEventInput')})
     return bot_response
 
 
