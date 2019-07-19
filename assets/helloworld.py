@@ -144,13 +144,20 @@ def welcome(req_json):
     req_json = request.get_json(force=True)
     logging.info('RESET QUEST CONTEXT')
     reset_context(req_json)
-    return question_and_answer(req_json)
 
+    import random
+    user_id = str(random.randrange(1,262))
+    user_name = getNameFromID(user_id)
 
 def id_confirmation(req_json):
     question, user_id = _fetch_user_input(req_json) # further processing
     text = req_json.get('queryResult').get('fulfillmentText')
     username = getNameFromID(user_id)
+    answers = _give_me_cache_space(req_json)
+    answers.update({'user_id': user_id,
+                    'user_name': username})
+
+    text = req_json.get('queryResult').get('fulfillmentText')
     if getSurveyStatus(user_id) == '1':
         event_context = {
           'name': 'trigger_help',
@@ -258,7 +265,6 @@ def question_and_answer(req_json):
 
 intent_map = {
                 'Default Welcome Intent': welcome,
-                'ID Confirmation': id_confirmation,
                 'Source Confirmation': question_and_answer,
                 'Source Invalid': question_and_answer,
                 'Survey Confirmation': question_and_answer,
