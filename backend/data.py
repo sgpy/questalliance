@@ -11,22 +11,22 @@ def generate(file_name):
     return rs
 
 def load_sudent_data():
-    rs = generate(file_name="../data/Indian-Female-Names.csv") + \
-         generate(file_name="../data/Indian-Male-Names.csv")
+    rs = generate(file_name="./data/Indian-Female-Names.csv") + \
+         generate(file_name="./data/Indian-Male-Names.csv")
     return rs
 
 
 def load_languages():
-    rs = generate(file_name="../data/INDIAN_LANGUAGE.csv")
+    rs = generate(file_name="./data/INDIAN_LANGUAGE.csv")
     return rs
 
 
 def load_courses():
-    rs = generate(file_name="../data/courses.csv")
+    rs = generate(file_name="./data/courses.csv")
     return rs
 
 if __name__ == '__main__':
-    rs = load_sudent_data()
+    rs = load_courses()
 
     for i, data in enumerate(rs):
         print("{} = {}".format(i, data))

@@ -5,14 +5,15 @@ import json
 import collections
 import requests
 import os
-from courses_lib import find_courses
+from CourseApi import find_courses
+from Course import Course
 
 app = Flask(__name__)
 
-entity_types_client = dialogflow.EntityTypesClient()
-
-parent = entity_types_client.project_agent_path('newagent-fc3d4')
-print ('parent', parent)
+# entity_types_client = dialogflow.EntityTypesClient()
+#
+# parent = entity_types_client.project_agent_path('newagent-fc3d4')
+# print ('parent', parent)
 
 '''
 Survey question flow:
@@ -233,20 +234,17 @@ def question_and_answer(req_json):
 
     if action == 'ShowCourses':
       courses = find_courses(data)
+      courses = find_courses(data)
       for course in courses.get('data'):
-        bot_response['fulfillmentMessages'].append({
-          'card': {
-            'title': course.get('tk_name'),
-            'subtitle': "Course description",
-            "buttons": [
-              {
-                "text": "View more",
-                "postback": "http://google.com"
-              }
-            ]
-          },
-          'platform': 'TELEGRAM'
-        })
+          courseobj = Course(course.get('tk_pk_id'),
+                             course.get('tk_tags'),
+                             course.get('tk_name'),
+                             course.get('tk_description'),
+                             course.get('language'),
+                             course.get('url'),
+                             course.get('tk_image'))
+          response = courseobj.get_card_response('TELEGRAM')
+          bot_response['fulfillmentMessages'].append(response)
 
     if len(quick_replies) > 0:
         bot_response['fulfillmentMessages'].append({

@@ -1,0 +1,3 @@
+source .tox/py3dev/bin/activate
+python backend/server.py
+curl -X GET localhost:1234/api/sink/user_info/100

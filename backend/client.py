@@ -216,8 +216,8 @@ def courses(conn, tags):
 search_courses = partial(courses, DB)
 
 def main():
-    # total_students = seed()
-    pass
+    total_students = seed()
+    #pass
 
 
 
