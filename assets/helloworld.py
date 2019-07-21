@@ -247,11 +247,11 @@ def question_and_answer(req_json):
         bot_response['fulfillmentMessages'].append({
           'card': {
             'title': course.get('tk_name'),
-            'subtitle': "Course description",
+            'subtitle': course.get('tk_description'),
             "buttons": [
               {
                 "text": "View more",
-                "postback": "http://google.com"
+                "postback": course.get('url'),
               }
             ]
           },
@@ -357,6 +357,7 @@ def questbot():
                           'parameters': {'answers': {}}}]]}
     """
     req_json = request.get_json(force=True)
+    print ('req_json', req_json)
     question, user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
     saveQuestContext(req_json, {question: user_input})
