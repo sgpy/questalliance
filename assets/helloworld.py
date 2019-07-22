@@ -1,5 +1,6 @@
 from flask import Flask, request, make_response, jsonify, session
-import dialogflow
+from dotenv import load_dotenv
+import os
 import logging
 import json
 import collections
@@ -7,6 +8,13 @@ import requests
 import os
 from assets.CourseApi import find_courses
 from assets.Course import Course
+
+# Read env variables from .env file
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(dotenv_path)
+
+# Import dialogflow api
+import dialogflow
 
 app = Flask(__name__)
 
@@ -22,7 +30,6 @@ def get_proficiency_level ():
   for ent in entity.entities:
     values.append(ent.value)
   return values
-
 
 '''
 Survey question flow:
