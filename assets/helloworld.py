@@ -187,7 +187,15 @@ def language_confirmation(req_json):
     r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
     return question_and_answer(req_json)
     
-
+def get_payload_from_message (req_json):
+  fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
+  # Grab the payload from the message
+  if not fullfilmentMessages:
+    return []
+  payload = [msg for msg in fullfilmentMessages if msg.get('payload')]
+  if len(payload) > 0:
+    return payload[0].get('payload')
+  return None
 
 def get_quick_replies_from_messages (req_json):
   fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
@@ -201,20 +209,21 @@ def get_quick_replies_from_messages (req_json):
   return quickReplies
 
 
+def validate_parameters (parameters):
+  valid = True
+  for key, value in parameters.items():
+    if value == '' or value is None:
+      valid = False
+  return valid
+
+
 def question_and_answer(req_json):
     # req_json = request.get_json(force=True)
     # Construct a default response if no intent match is found
     query_result = req_json.get('queryResult')
     followupEvent = req_json.get('followupEventInput')
     
-    data = {
-    'tags': '#Understanding Self'
-    }
 
-    # if (query_result.get('action')) {
-      # We will need to execute an action
-
-    # }
     print("*" * 50)
     from pprint import pprint as pp
     pp(query_result)
@@ -224,7 +233,8 @@ def question_and_answer(req_json):
     bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
     bot_response.update({'followupEventInput': followupEvent })
     action = query_result.get('action')
-
+    parameters = query_result.get('parameters')
+    payload = get_payload_from_message(req_json)
 
     if followupEvent is None and action == 'ShowHelpTopics':
       event_context = {
@@ -232,9 +242,8 @@ def question_and_answer(req_json):
       }
       bot_response.update({'followupEventInput': event_context})
 
-    if action == 'ShowCourses':
-      courses = find_courses(data)
-      courses = find_courses(data)
+    if action == 'ShowCourses' and validate_parameters(parameters):
+      courses = find_courses(payload)
       for course in courses.get('data'):
           courseobj = Course(course.get('tk_pk_id'),
                              course.get('tk_tags'),
@@ -246,7 +255,7 @@ def question_and_answer(req_json):
           response = courseobj.get_card_response('TELEGRAM')
           bot_response['fulfillmentMessages'].append(response)
 
-    if len(quick_replies) > 0:
+    if quick_replies is not None and len(quick_replies) > 0:
         bot_response['fulfillmentMessages'].append({
             "quickReplies": {
                 "quickReplies": quick_replies
@@ -345,6 +354,7 @@ def questbot():
                           'parameters': {'answers': {}}}]]}
     """
     req_json = request.get_json(force=True)
+    print ('req_json', req_json)
     question, user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
     saveQuestContext(req_json, {question: user_input})
