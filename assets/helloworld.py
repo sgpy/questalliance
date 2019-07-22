@@ -158,10 +158,11 @@ def welcome(req_json):
     req_json = request.get_json(force=True)
     logging.info('RESET QUEST CONTEXT')
     reset_context(req_json)
+    return req_json
 
-    import random
-    user_id = str(random.randrange(1,262))
-    user_name = getNameFromID(user_id)
+    # import random
+    # user_id = str(random.randrange(1,262))
+    # user_name = getNameFromID(user_id)
 
 def id_confirmation(req_json):
     question, user_id = _fetch_user_input(req_json) # further processing
