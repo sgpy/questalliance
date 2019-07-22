@@ -25,13 +25,34 @@ entity_client = dialogflow.EntityTypesClient()
 project_name = 'newagent-fc3d4'
 
 def get_proficiency_level ():
-  entity_id = '26499c50-c8f0-447e-84fe-b15962c854ee'
-  name = entity_client.entity_type_path('newagent-fc3d4', '26499c50-c8f0-447e-84fe-b15962c854ee')
+  entity_id = os.getenv('PROFICIENCY_ENTITY_ID')
+  name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
   entity = entity_client.get_entity_type(name)
   values = []
   for ent in entity.entities:
     values.append(ent.value)
   return values
+
+def get_find_job_parameter_values ():
+  entity_id = os.getenv('FIND_JOB_ENTITY_ID')
+  name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
+  entity = entity_client.get_entity_type(name)
+  values = []
+  for ent in entity.entities:
+    values.append(ent.value)
+  return values
+
+
+def get_start_own_business_parameter_values ():
+  entity_id = os.getenv('START_OWN_BUSINESS_ENTITY_ID')
+  name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
+  entity = entity_client.get_entity_type(name)
+  values = []
+  for ent in entity.entities:
+    values.append(ent.value)
+  return values
+
+
 
 '''
 Survey question flow:
@@ -273,8 +294,21 @@ def question_and_answer(req_json):
       bot_response.update({'followupEventInput': event_context})
 
     if action == 'ShowCourses' and validate_parameters(parameters):      
+      # Check if payload contains dictionary of tags
+      # payload = { tags: '#Understanding self' }
+      # OR
+      # payload = { tags: { 'Career planning': "#Understanding self" }}
+      query = payload
+      tags = payload.get('tags')      
 
-      courses = find_courses(payload)
+      if (not isinstance(tags, str)):
+        # Create tags for each parameter
+        for key, value in parameters.items():
+          query['tags'] = tags.get(value) if tags.get(value) is not None else ''
+
+      logging.info('Finding course for ', query)
+
+      courses = find_courses(query)
       for course in courses.get('data'):
           courseobj = Course(course.get('tk_pk_id'),
                              course.get('tk_tags'),
@@ -294,7 +328,23 @@ def question_and_answer(req_json):
             "quickReplies": {
                 "quickReplies": parameter_values
             }
-        })    
+        })
+
+      if (parameter_to_ask == 'FindJob'):
+        parameter_values = get_find_job_parameter_values()
+        bot_response['fulfillmentMessages'].append({
+            "quickReplies": {
+                "quickReplies": parameter_values
+            }
+        }) 
+
+      if (parameter_to_ask == 'StartOwnBusiness'):
+        parameter_values = get_start_own_business_parameter_values()
+        bot_response['fulfillmentMessages'].append({
+            "quickReplies": {
+                "quickReplies": parameter_values
+            }
+        })  
 
     # we should copy fulfillmentText into fulfillmentMessages together.
     for item in bot_response['fulfillmentMessages']:
@@ -316,6 +366,7 @@ def question_and_answer(req_json):
 
 intent_map = {
                 'Default Welcome Intent': welcome,
+                'ID Confirmation': id_confirmation,
                 'Source Confirmation': question_and_answer,
                 'Source Invalid': question_and_answer,
                 'Survey Confirmation': question_and_answer,
@@ -402,7 +453,7 @@ def questbot():
                           'parameters': {'answers': {}}}]]}
     """
     req_json = request.get_json(force=True)
-    print ('req_json', req_json)
+    # print ('req_json', req_json)
     question, user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
     saveQuestContext(req_json, {question: user_input})
