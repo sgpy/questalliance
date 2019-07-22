@@ -15,19 +15,30 @@ ___
 ___
 > Building the  chatbot
 
-1. pip install tox
-    > "sudo" may be required based on the OS release
+1. `pip install tox`
+   > "sudo" may be required based on the OS release
     
-2. git clone https://github.com/sgpy/questalliance.git
+2. `git clone https://github.com/sgpy/questalliance.git`
 
-3. cd questalliance
+3. `cd questalliance`
 
-4. tox
+4. `tox`
     > This will install at the required dependencies
+    
+5. `source .tox/py3/bin/activate`
+    > Activate the virtual environment    
 
-### Running mock backend server (Optional)    
+### Running backend server (Optional)    
 
-1. run
+1. `deploy_backend_server`
+    > Runs the mock backend server (powered by sqllite)
+
+### Running relay server
+    
+1. `deploy_relay_server`
+    > Connects to dialogflow server
+    
+
 
 
 ### Sandboxing

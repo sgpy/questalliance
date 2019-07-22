@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from flask import Flask, request, make_response, jsonify, session
 from dotenv import load_dotenv
 import os
@@ -378,6 +380,10 @@ def _fetch_user_input(req_json):
 
 def _fetch_intent(req_json):
     return req_json.get("queryResult").get("intent").get("displayName")
+
+@app.route('/ping', methods=['GET', 'POST'])
+def ping():
+    return "Relay: {}".format(str(uuid4()))
 
 
 @app.route('/api/endpoint', methods=['GET', 'POST'])
