@@ -23,7 +23,7 @@ entity_client = dialogflow.EntityTypesClient()
 project_name = 'newagent-fc3d4'
 
 def get_proficiency_level ():
-  entity_id = '26499c50-c8f0-447e-84fe-b15962c854ee'
+  entity_id = os.getenv('PROFICIENCY_ENTITY_ID')
   name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
   entity = entity_client.get_entity_type(name)
   values = []
@@ -32,7 +32,7 @@ def get_proficiency_level ():
   return values
 
 def get_find_job_parameter_values ():
-  entity_id = 'a21f6af1-1389-4539-b3db-ce48b221ebcc'
+  entity_id = os.getenv('FIND_JOB_ENTITY_ID')
   name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
   entity = entity_client.get_entity_type(name)
   values = []
@@ -42,7 +42,7 @@ def get_find_job_parameter_values ():
 
 
 def get_start_own_business_parameter_values ():
-  entity_id = 'a57f5c40-b846-4ae7-a40e-e5f57e8ae395'
+  entity_id = os.getenv('START_OWN_BUSINESS_ENTITY_ID')
   name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
   entity = entity_client.get_entity_type(name)
   values = []
@@ -364,6 +364,7 @@ def question_and_answer(req_json):
 
 intent_map = {
                 'Default Welcome Intent': welcome,
+                'ID Confirmation': id_confirmation,
                 'Source Confirmation': question_and_answer,
                 'Source Invalid': question_and_answer,
                 'Survey Confirmation': question_and_answer,
