@@ -124,7 +124,7 @@ A11: typing
 Q12: Thanks for completing the survey. I can help you choose the right courses on Quest App. Would you like to look at the Help topics?
 A12: 1. Yes / 2. No
      Yes: Jump to Q13
-     No : Thanks. Have a good day. You can call me back just type ‘Hi’
+     No : Thanks. Have a good day. You can call me back just type 'Hi'
 
 
 Q13: Here are the help topics. Please select the one you would like to learn
@@ -135,68 +135,74 @@ A13: 1. English Communication
 
 '''
 
-# TODO
+
 def _telegram_payload_wrapper(question, options):
+    logging.info('_telegram_payload_wrapper')
     telegram = {
-                # 'text': {
-                #    'text': [question]
-                #   },
-                 'reply_markup': {
-                        'one_time_keyboard': True,
-                        'resize_keyboard': True,
-                        'keyboard': []
-                    },
-                    'platform': 'TELEGRAM'
-                }
+                'payload':{
+                    'telegram':{
+                        'text': question,
+                        'reply_markup': {
+                            'one_time_keyboard': True,
+                            'resize_keyboard': True,
+                            'keyboard': [
+                                # [
+                                #   {
+                                #     "text": "YesAAAAAA",
+                                #     "callback_data": "YES"
+                                #   }
+                                # ],
+                                # [
+                                #   {
+                                #     "callback_data": "NO",
+                                #     "text": "NoBBBBBBB"
+                                #   }
+                                # ],
+                            ]
+                        },
+                    }
+                },
+                'platform': 'TELEGRAM',
+            }
 
     for op in options:
-        telegram['reply_markup']['keyboard'].append({ 'text' : op})
-
+        telegram['payload']['telegram']['reply_markup']['keyboard'].append([{ 'text' : op}])
     return telegram
 
-def _suggestion_payload_wrapper(question, options):
+def _suggestion_payload_wrapper(options):
+    logging.info('_suggestion_payload_wrapper')
     feedback = {
-                  "fulfillmentMessages": [
-                    {
-                      "text": {
-                        "text": [
-                          question
-                        ]
-                      }
-                    },
-                    {
-                      "quickReplies": {
-                        "quickReplies": options
-                      }
-                    }
-                  ]
+                  "quickReplies": {
+                    "quickReplies": options
+                  }
                 }
     return feedback
 
 
 def getNameFromID(user_id):
+    logging.info('getNameFromID({user_id})'.format(user_id=user_id))
     URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(user_id)
     r = requests.get(url=URL)
     return r.json()['student_data']['stud_first_name']
 
 
 def getSurveyStatus(user_id):
+    logging.info('getSurveyStatus({user_id})'.format(user_id=user_id))
     URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(user_id)
     r = requests.get(url=URL)
     return r.json()['student_data']['survey_status']
 
 
 def welcome(req_json):
+    logging.info('Welcome')
     req_json = request.get_json(force=True)
     logging.info('RESET QUEST CONTEXT')
     reset_context(req_json)
-    return req_json
+    return question_and_answer(req_json)
 
-    # import random
-    # user_id = str(random.randrange(1,262))
-    # user_name = getNameFromID(user_id)
 
 def id_confirmation(req_json):
+    logging.info('id_confirmation')
     question, user_id = _fetch_user_input(req_json) # further processing
     text = req_json.get('queryResult').get('fulfillmentText')
     username = getNameFromID(user_id)
@@ -221,14 +227,8 @@ def id_confirmation(req_json):
 
 
 def language_confirmation(req_json):
-    print ('Saving response')
-    fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
-    quickReplies = get_quick_replies_from_messages(req_json)
-    response = _suggestion_payload_wrapper('', quickReplies)
-    response['fulfillmentMessages'][0] = fullfilmentMessages[0]
-
-    answers = _give_me_cache_space(req_json)
-    user_id = answers.get('user_id')
+    logging.info('language_confirmation')
+    user_id = _give_me_cache_space(req_json).get('user_id')
     URL = 'http://127.0.0.1:1234/api/sink/mark_survey_complete/{0}'.format(user_id)
     r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
     return question_and_answer(req_json)
@@ -277,22 +277,17 @@ def get_next_parameter (parameters):
 
 
 def question_and_answer(req_json):
-    # req_json = request.get_json(force=True)
     # Construct a default response if no intent match is found
     query_result = req_json.get('queryResult')
     followupEvent = req_json.get('followupEventInput')
-    
 
-    print("*" * 50)
-    from pprint import pprint as pp
-    pp(query_result)
-    print("*" * 50)
     quick_replies = get_quick_replies_from_messages(req_json)
     bot_response = {'output_contexts': req_json.get('queryResult').get('outputContexts')}
     bot_response['fulfillmentMessages'] = query_result.get('fulfillmentMessages')
     bot_response.update({'followupEventInput': followupEvent })
     action = query_result.get('action')
     parameters = query_result.get('parameters')
+    logging.info('question_and_answer, Act: %s Params: %s' % (action, parameters))
     payload = get_payload_from_message(req_json)
 
     if followupEvent is None and action == 'ShowHelpTopics':
@@ -334,45 +329,28 @@ def question_and_answer(req_json):
         logging.info('NOT ShowCourses')
         parameter_to_ask = get_next_parameter(parameters)
         if (parameter_to_ask == 'ProficiencyLevel'):
-            parameter_values = get_proficiency_level()
-
-        bot_response['fulfillmentMessages'].append({
-            "quickReplies": {
-                "quickReplies": parameter_values
-            }
-        })
+            quick_replies = get_proficiency_level()
 
         if (parameter_to_ask == 'FindJob'):
-            parameter_values = get_find_job_parameter_values()
-            bot_response['fulfillmentMessages'].append({
-                "quickReplies": {
-                    "quickReplies": parameter_values
-                }
-            })
+            quick_replies = get_find_job_parameter_values()
 
         if (parameter_to_ask == 'StartOwnBusiness'):
-            parameter_values = get_start_own_business_parameter_values()
-            bot_response['fulfillmentMessages'].append({
-                "quickReplies": {
-                    "quickReplies": parameter_values
-                }
-            })
+            quick_replies = get_start_own_business_parameter_values()
 
+    next_question = query_result.get('fulfillmentText')
+    logging.info('question_and_answer, Next Question: %s' % (next_question))
     # we should copy fulfillmentText into fulfillmentMessages together.
     for item in bot_response['fulfillmentMessages']:
         if 'text' in item:
-            item['text']['text'] = [query_result.get('fulfillmentText')]
+            item['text']['text'] = [next_question]
+            logging.info(' fulfillmentMessages item updated')
 
-    if quick_replies is not None and len(quick_replies) > 0:
-        telegram_response = _telegram_payload_wrapper('hello telegram', quick_replies)
-        bot_response['fulfillmentMessages'].append({
-            "quickReplies": {
-                "quickReplies": quick_replies
-            }
-        })
+    # For Quick replies
+    bot_response['fulfillmentMessages'].append(_suggestion_payload_wrapper(quick_replies))
 
-        bot_response['fulfillmentMessages'].append(telegram_response)
-    # 
+    # For Telegram
+    telegram_response = _telegram_payload_wrapper(next_question, quick_replies)
+    bot_response['fulfillmentMessages'].append(telegram_response)
     return bot_response
 
 
@@ -425,12 +403,13 @@ def _give_me_cache_space(req_json):
 
 
 def saveQuestContext(req_json, user_input):
+    logging.info('saveQuestContext: {0}'.format(user_input))
     answers = _give_me_cache_space(req_json)
     answers.update(user_input)
-    print(answers)
 
 
 def reset_context(req_json):
+    logging.info('reset_context')
     answers = _give_me_cache_space(req_json)
     answers.clear()
 
@@ -438,11 +417,15 @@ def reset_context(req_json):
 def _fetch_user_input(req_json):
     question = ','.join(req_json.get(u'queryResult').get(u'parameters').keys())
     answer = req_json.get(u'queryResult').get(u'queryText')
+    logging.info('_fetch_user_input, Q: %s, A: %s' % (question, answer))
     return question, answer
 
 
 def _fetch_intent(req_json):
-    return req_json.get("queryResult").get("intent").get("displayName")
+    intent = req_json.get("queryResult").get("intent").get("displayName")
+    logging.info('_fetch_intent: %s' % intent)
+    return intent
+
 
 @app.route('/ping', methods=['GET', 'POST'])
 def ping():
@@ -464,8 +447,8 @@ def questbot():
                           'name': 'projects/qabotlocal-voalga/agent/sessions/35938982-36c6-8225-3b09-1933c06a52a9/contexts/quest_context',
                           'parameters': {'answers': {}}}]]}
     """
+    logging.info('questbot')
     req_json = request.get_json(force=True)
-    # print ('req_json', req_json)
     question, user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
     saveQuestContext(req_json, {question: user_input})
