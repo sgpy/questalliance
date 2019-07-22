@@ -104,19 +104,23 @@ A13: 1. English Communication
 '''
 
 # TODO
-# def _telegram_payload_wrapper(agent, question, options):
-#     telegram = { 'text': question,
-#                  'reply_markup': {
-#                         'one_time_keyboard': true,
-#                         'resize_keyboard': true,
-#                         'keyboard': []
-#                     }
-#                 }
+def _telegram_payload_wrapper(question, options):
+    telegram = {
+                'text': {
+                   'text': [question]
+                  },
+                 'reply_markup': {
+                        'one_time_keyboard': True,
+                        'resize_keyboard': True,
+                        'keyboard': []
+                    },
+                    'platform': 'TELEGRAM'
+                }
 
-#     for op in options:
-#         telegram['reply_markup']['keyboard'].append({"text": op})
+    for op in options:
+        telegram['reply_markup']['keyboard'].append({"text": op})
 
-#     return telegram
+    return telegram
 
 def _suggestion_payload_wrapper(question, options):
     feedback = {
@@ -280,19 +284,22 @@ def question_and_answer(req_json):
             "quickReplies": {
                 "quickReplies": parameter_values
             }
-        })
+        })    
+
+    # we should copy fulfillmentText into fulfillmentMessages together.
+    for item in bot_response['fulfillmentMessages']:
+        if 'text' in item:
+            item['text']['text'] = [query_result.get('fulfillmentText')]
 
     if quick_replies is not None and len(quick_replies) > 0:
+        telegram_response = _telegram_payload_wrapper('hello telegram', quick_replies)
         bot_response['fulfillmentMessages'].append({
             "quickReplies": {
                 "quickReplies": quick_replies
             }
         })
 
-    # we should copy fulfillmentText into fulfillmentMessages together.
-    for item in bot_response['fulfillmentMessages']:
-        if 'text' in item:
-            item['text']['text'] = [query_result.get('fulfillmentText')]
+        bot_response['fulfillmentMessages'].append(telegram_response)
     # 
     return bot_response
 
