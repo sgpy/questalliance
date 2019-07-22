@@ -232,43 +232,49 @@ def language_confirmation(req_json):
     URL = 'http://127.0.0.1:1234/api/sink/mark_survey_complete/{0}'.format(user_id)
     r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
     return question_and_answer(req_json)
-    
-def get_payload_from_message (req_json):
-  fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
-  # Grab the payload from the message
-  if not fullfilmentMessages:
-    return []
-  payload = [msg for msg in fullfilmentMessages if msg.get('payload')]
-  if len(payload) > 0:
-    return payload[0].get('payload')
-  return None
 
-def get_quick_replies_from_messages (req_json):
-  fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
-  # Grab the payload from the message
-  if not fullfilmentMessages:
-    return []
-  payload = [msg for msg in fullfilmentMessages if msg.get('payload')]
-  quickReplies = []
-  if len(payload) > 0:
-    quickReplies = payload[0].get('payload').get('quickReplies')
-  return quickReplies
+
+def get_payload_from_message(req_json):
+    fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
+    # Grab the payload from the message
+    if not fullfilmentMessages:
+        return []
+    payload = [msg for msg in fullfilmentMessages if msg.get('payload')]
+    if len(payload) > 0:
+        payload = payload[0].get('payload')
+        logging.info('get_payload_from_message: %s' % payload)
+        return payload
+    return None
+
+
+def get_quick_replies_from_messages(req_json):
+    fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
+    # Grab the payload from the message
+    if not fullfilmentMessages:
+        return []
+    payload = [msg for msg in fullfilmentMessages if msg.get('payload')]
+    quickReplies = []
+    if len(payload) > 0:
+        quickReplies = payload[0].get('payload').get('quickReplies')
+    return quickReplies
 
 
 def validate_parameters (parameters):
-  valid = True
-  for key, value in parameters.items():
-    if value == '' or value is None:
-      valid = False
-  return valid
+    valid = True
+    for key, value in parameters.items():
+        if value == '' or value is None:
+            valid = False
+    return valid
+
 
 def get_next_parameter (parameters):
-  param = False
-  for key, value in parameters.items():
-    if value == '' or value is None:
-      param = key
-      break
-  return param
+    param = False
+    for key, value in parameters.items():
+        if value == '' or value is None:
+            param = key
+            break
+    return param
+
 
 def question_and_answer(req_json):
     # req_json = request.get_json(force=True)
