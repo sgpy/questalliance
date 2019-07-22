@@ -1,4 +1,4 @@
-from CourseApi import find_courses
+from assets.CourseApi import find_courses
 class Course:
     def __init__(self,tk_pk_id,tk_tags,tk_name,tk_description,language,url,tk_image):
         self.name=tk_name
