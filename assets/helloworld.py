@@ -106,9 +106,9 @@ A13: 1. English Communication
 # TODO
 def _telegram_payload_wrapper(question, options):
     telegram = {
-                'text': {
-                   'text': [question]
-                  },
+                # 'text': {
+                #    'text': [question]
+                #   },
                  'reply_markup': {
                         'one_time_keyboard': True,
                         'resize_keyboard': True,
@@ -118,7 +118,7 @@ def _telegram_payload_wrapper(question, options):
                 }
 
     for op in options:
-        telegram['reply_markup']['keyboard'].append({"text": op})
+        telegram['reply_markup']['keyboard'].append({ 'text' : op})
 
     return telegram
 
