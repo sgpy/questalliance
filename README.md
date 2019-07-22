@@ -41,11 +41,14 @@ ___
 3. `cd questalliance`
 
 4. `tox`
-    > This will install at the required dependencies
+    > This will install all required dependencies
     
 5. `source .tox/py3/bin/activate`
     > Activate the virtual environment    
 
+6. `ngrok http 5000`
+    > From your folder hosting uncompressed binary
+    
 ### Running backend server (Optional)    
 
 1. `deploy_backend_server`
