@@ -24,33 +24,35 @@ app = Flask(__name__)
 entity_client = dialogflow.EntityTypesClient()
 project_name = 'newagent-fc3d4'
 
+
 def get_proficiency_level ():
-  entity_id = os.getenv('PROFICIENCY_ENTITY_ID')
-  name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
-  entity = entity_client.get_entity_type(name)
-  values = []
-  for ent in entity.entities:
-    values.append(ent.value)
-  return values
+    entity_id = os.getenv('PROFICIENCY_ENTITY_ID')
+    name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
+    entity = entity_client.get_entity_type(name)
+    values = []
+    for ent in entity.entities:
+        values.append(ent.value)
+    return values
+
 
 def get_find_job_parameter_values ():
-  entity_id = os.getenv('FIND_JOB_ENTITY_ID')
-  name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
-  entity = entity_client.get_entity_type(name)
-  values = []
-  for ent in entity.entities:
-    values.append(ent.value)
-  return values
+    entity_id = os.getenv('FIND_JOB_ENTITY_ID')
+    name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
+    entity = entity_client.get_entity_type(name)
+    values = []
+    for ent in entity.entities:
+        values.append(ent.value)
+    return values
 
 
 def get_start_own_business_parameter_values ():
-  entity_id = os.getenv('START_OWN_BUSINESS_ENTITY_ID')
-  name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
-  entity = entity_client.get_entity_type(name)
-  values = []
-  for ent in entity.entities:
-    values.append(ent.value)
-  return values
+    entity_id = os.getenv('START_OWN_BUSINESS_ENTITY_ID')
+    name = entity_client.entity_type_path('newagent-fc3d4', entity_id)
+    entity = entity_client.get_entity_type(name)
+    values = []
+    for ent in entity.entities:
+        values.append(ent.value)
+    return values
 
 
 
@@ -288,63 +290,67 @@ def question_and_answer(req_json):
     payload = get_payload_from_message(req_json)
 
     if followupEvent is None and action == 'ShowHelpTopics':
-      event_context = {
-        'name': 'trigger_help',
-      }
-      bot_response.update({'followupEventInput': event_context})
+        logging.info('Action: ShowHelpTopics')
+        event_context = {
+            'name': 'trigger_help',
+        }
+        bot_response.update({'followupEventInput': event_context})
 
-    if action == 'ShowCourses' and validate_parameters(parameters):      
-      # Check if payload contains dictionary of tags
-      # payload = { tags: '#Understanding self' }
-      # OR
-      # payload = { tags: { 'Career planning': "#Understanding self" }}
-      query = payload
-      tags = payload.get('tags')      
+    if action == 'ShowCourses' and validate_parameters(parameters):
+        # Check if payload contains dictionary of tags
+        # payload = { tags: '#Understanding self' }
+        # OR
+        # payload = { tags: { 'Career planning': "#Understanding self" }}
+        query = payload
+        tags = payload.get('tags')
 
-      if (not isinstance(tags, str)):
-        # Create tags for each parameter
-        for key, value in parameters.items():
-          query['tags'] = tags.get(value) if tags.get(value) is not None else ''
+        if (not isinstance(tags, str)):
+            # Create tags for each parameter
+            for key, value in parameters.items():
+                query['tags'] = tags.get(value) if tags.get(value) is not None else ''
 
-      logging.info('Finding course for ', query)
+        logging.info('Finding course for ', query)
 
-      courses = find_courses(query)
-      for course in courses.get('data'):
-          courseobj = Course(course.get('tk_pk_id'),
-                             course.get('tk_tags'),
-                             course.get('tk_name'),
-                             course.get('tk_description'),
-                             course.get('language'),
-                             course.get('url'),
-                             course.get('tk_image'))
-          response = courseobj.get_card_response('TELEGRAM')
-          bot_response['fulfillmentMessages'].append(response)
+        courses = find_courses(query)
+        for course in courses.get('data'):
+            logging.info('  course: %s' % course)
+            courseobj = Course(course.get('tk_pk_id'),
+                                course.get('tk_tags'),
+                                course.get('tk_name'),
+                                course.get('tk_description'),
+                                course.get('language'),
+                                course.get('url'),
+                                course.get('tk_image'))
+            response = courseobj.get_card_response('TELEGRAM')
+            bot_response['fulfillmentMessages'].append(response)
 
     else:
-      parameter_to_ask = get_next_parameter(parameters)
-      if (parameter_to_ask == 'ProficiencyLevel'):
-        parameter_values = get_proficiency_level()
+        logging.info('NOT ShowCourses')
+        parameter_to_ask = get_next_parameter(parameters)
+        if (parameter_to_ask == 'ProficiencyLevel'):
+            parameter_values = get_proficiency_level()
+
         bot_response['fulfillmentMessages'].append({
             "quickReplies": {
                 "quickReplies": parameter_values
             }
         })
 
-      if (parameter_to_ask == 'FindJob'):
-        parameter_values = get_find_job_parameter_values()
-        bot_response['fulfillmentMessages'].append({
-            "quickReplies": {
-                "quickReplies": parameter_values
-            }
-        }) 
+        if (parameter_to_ask == 'FindJob'):
+            parameter_values = get_find_job_parameter_values()
+            bot_response['fulfillmentMessages'].append({
+                "quickReplies": {
+                    "quickReplies": parameter_values
+                }
+            })
 
-      if (parameter_to_ask == 'StartOwnBusiness'):
-        parameter_values = get_start_own_business_parameter_values()
-        bot_response['fulfillmentMessages'].append({
-            "quickReplies": {
-                "quickReplies": parameter_values
-            }
-        })  
+        if (parameter_to_ask == 'StartOwnBusiness'):
+            parameter_values = get_start_own_business_parameter_values()
+            bot_response['fulfillmentMessages'].append({
+                "quickReplies": {
+                    "quickReplies": parameter_values
+                }
+            })
 
     # we should copy fulfillmentText into fulfillmentMessages together.
     for item in bot_response['fulfillmentMessages']:
