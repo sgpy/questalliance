@@ -29,8 +29,6 @@ class Telegram:
 
 
     def card_response(self,course):
-       print (course.image)
-       print(course.url)
 
        return  {
             'card': {
