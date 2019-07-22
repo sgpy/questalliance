@@ -10,10 +10,19 @@ from Course import Course
 
 app = Flask(__name__)
 
-# entity_types_client = dialogflow.EntityTypesClient()
-#
-# parent = entity_types_client.project_agent_path('newagent-fc3d4')
-# print ('parent', parent)
+# Dialog flow entity client
+entity_client = dialogflow.EntityTypesClient()
+project_name = 'newagent-fc3d4'
+
+def get_proficiency_level ():
+  entity_id = '26499c50-c8f0-447e-84fe-b15962c854ee'
+  name = entity_client.entity_type_path('newagent-fc3d4', '26499c50-c8f0-447e-84fe-b15962c854ee')
+  entity = entity_client.get_entity_type(name)
+  values = []
+  for ent in entity.entities:
+    values.append(ent.value)
+  return values
+
 
 '''
 Survey question flow:
