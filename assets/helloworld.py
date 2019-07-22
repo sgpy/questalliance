@@ -228,7 +228,8 @@ def id_confirmation(req_json):
 
 def language_confirmation(req_json):
     logging.info('language_confirmation')
-    user_id = _give_me_cache_space(req_json).get('user_id')
+    answers = _give_me_cache_space(req_json)
+    user_id = answers.get('user_id')
     URL = 'http://127.0.0.1:1234/api/sink/mark_survey_complete/{0}'.format(user_id)
     r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
     return question_and_answer(req_json)
