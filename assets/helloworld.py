@@ -5,7 +5,7 @@ import json
 import collections
 import requests
 import os
-from courses_lib import find_courses
+from assets.courses_lib import find_courses
 
 app = Flask(__name__)
 

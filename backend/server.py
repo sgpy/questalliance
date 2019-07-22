@@ -3,10 +3,16 @@ import os.path
 
 from flask import Flask, request, make_response, jsonify
 
-from client import survey_complete, search_courses, users_info, find_user_info
+from backend.client import survey_complete, search_courses, users_info, find_user_info
 
 app = Flask(__name__)
+logging.basicConfig(filename='backend.log', level=logging.DEBUG)
 
+
+@app.route('/ping', methods=['POST', 'GET'])
+def ping():
+    from uuid import uuid4
+    return "Backend: {}".format(str(uuid4()))
 
 @app.route('/api/sink/mark_survey_complete/<user>', methods=['POST'])
 def process(user):
@@ -28,11 +34,9 @@ def find_courses(user):
     tags = tags.split(",")
     tags = [_.strip() for _ in tags]
     courses = search_courses(tags)
-    resp ={"status": 1, "message": "success", "data": courses}
+    resp = {"status": 1, "message": "success", "data": courses}
 
     return make_response(jsonify(resp))
-
-
 
 
 @app.route('/api/sink/user_info/<user>', methods=['GET'])
@@ -41,23 +45,22 @@ def user_info(user):
     user_info = find_user_info([user])
     info = user_info[user]
 
-    resp = {"status":"1", "student_data":info}
+    resp = {"status": "1", "student_data": info}
     return resp
 
 
-
-def start():
-    logging.basicConfig(filename='app.log', level=logging.DEBUG)
-    from client import DB
-
+def validate():
+    from backend.client import DB
     logger = logging.getLogger(__name__)
     if not os.path.exists(DB):
         msg = "unable to start server due to missing db at path {}".format(DB)
         logger.critical(msg)
         raise ValueError(msg)
 
-    app.run(host='0.0.0.0', port=1234)
 
+def start():
+    app.run(host='0.0.0.0', port=1234)
+    validate()
 
 if __name__ == '__main__':
     start()

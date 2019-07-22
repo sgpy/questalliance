@@ -1,5 +1,38 @@
-# questalliance
-Repo for Quest Alliance chatbot
+# QuestAlliance - Chatbot
+> Repo for Quest Alliance chatbot
+
+
+
+### Prerequisite
+___
+1. Download [ngrok for linux](https://ngrok.com/download) or as required by your OS
+
+2. Uncompress
+    > Keep a note of the directory
+   
+
+### Deploying
+___
+> Building the  chatbot
+
+1. pip install tox
+    > "sudo" may be required based on the OS release
+    
+2. git clone https://github.com/sgpy/questalliance.git
+
+3. cd questalliance
+
+4. tox
+    > This will install at the required dependencies
+
+### Running mock backend server (Optional)    
+
+1. run
+
+
+### Sandboxing
+> (Optional: For security sensitive developers)
+___
 
 ### Prerequisite
 1. Install [Vagrant](https://www.vagrantup.com/downloads.html)
@@ -16,6 +49,3 @@ Repo for Quest Alliance chatbot
 
 ### Execution
 1. vagrant ssh
-
-
-
