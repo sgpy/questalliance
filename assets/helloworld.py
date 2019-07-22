@@ -225,6 +225,13 @@ def validate_parameters (parameters):
       valid = False
   return valid
 
+def get_next_parameter (parameters):
+  param = False
+  for key, value in parameters.items():
+    if value == '' or value is None:
+      param = key
+      break
+  return param
 
 def question_and_answer(req_json):
     # req_json = request.get_json(force=True)
@@ -251,7 +258,8 @@ def question_and_answer(req_json):
       }
       bot_response.update({'followupEventInput': event_context})
 
-    if action == 'ShowCourses' and validate_parameters(parameters):
+    if action == 'ShowCourses' and validate_parameters(parameters):      
+
       courses = find_courses(payload)
       for course in courses.get('data'):
           courseobj = Course(course.get('tk_pk_id'),
@@ -263,6 +271,16 @@ def question_and_answer(req_json):
                              course.get('tk_image'))
           response = courseobj.get_card_response('TELEGRAM')
           bot_response['fulfillmentMessages'].append(response)
+
+    else:
+      parameter_to_ask = get_next_parameter(parameters)
+      if (parameter_to_ask == 'ProficiencyLevel'):
+        parameter_values = get_proficiency_level()
+        bot_response['fulfillmentMessages'].append({
+            "quickReplies": {
+                "quickReplies": parameter_values
+            }
+        })
 
     if quick_replies is not None and len(quick_replies) > 0:
         bot_response['fulfillmentMessages'].append({
