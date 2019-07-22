@@ -5,18 +5,36 @@
 
 ### Prerequisite
 ___
-1. Download [ngrok for linux](https://ngrok.com/download) or as required by your OS
+1. Install [Python](https://www.python.org/downloads/) as per your OS
 
-2. Uncompress
+2. Install [pip](https://pip.pypa.io/en/stable/installing) (If applicable)
+
+3. Upgrade [pip](https://pip.pypa.io/en/stable/installing/#upgrading-pip) (If applicable)
+
+3. Download [ngrok](https://ngrok.com/download) as per your OS
+
+4. Uncompress
     > Keep a note of the directory
    
 
+### Verification
+___
+
+1. `python3 --version` or `python --version`
+    > must be Python 3.7.x
+    >> Otherwise install/upgrade python3
+    
+2. `pip --version`
+    > must be pip 19.1.x
+    >> Otherwise install/upgrade pip
+
+
 ### Deploying
 ___
-> Building the  chatbot
+> Building the  chatbot 
 
 1. `pip install tox`
-   > "sudo" may be required based on the OS release
+   > "sudo" may be required to install [tox](https://tox.readthedocs.io/en/latest/install.html) based on the OS release
     
 2. `git clone https://github.com/sgpy/questalliance.git`
 
