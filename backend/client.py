@@ -1,10 +1,10 @@
 import os
 import random
 from functools import partial
-import os 
-from admin import connection
+import os
+from backend.admin import connection
 
-from data import load_sudent_data, load_languages, load_courses
+from backend.data import load_sudent_data, load_languages, load_courses
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
