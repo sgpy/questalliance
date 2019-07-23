@@ -291,6 +291,7 @@ def question_and_answer(req_json):
     parameters = query_result.get('parameters')
     logging.info('question_and_answer, Act: %s Params: %s' % (action, parameters))
     payload = get_payload_from_message(req_json)
+    courses = None
 
     if followupEvent is None and action == 'ShowHelpTopics':
         logging.info('Action: ShowHelpTopics')
@@ -351,8 +352,9 @@ def question_and_answer(req_json):
     bot_response['fulfillmentMessages'].append(_suggestion_payload_wrapper(quick_replies))
 
     # For Telegram
-    telegram_response = _telegram_payload_wrapper(next_question, quick_replies)
-    bot_response['fulfillmentMessages'].append(telegram_response)
+    if not courses:
+        telegram_response = _telegram_payload_wrapper(next_question, quick_replies)
+        bot_response['fulfillmentMessages'].append(telegram_response)
     return bot_response
 
 
