@@ -143,6 +143,7 @@ def _telegram_payload_wrapper(question, options):
                     'telegram':{
                         'text': question,
                         'reply_markup': {
+                            'remove_keyboard': False if options else True,
                             'one_time_keyboard': True,
                             'resize_keyboard': True,
                             'keyboard': [
