@@ -56,3 +56,8 @@ def deploy_backend_server(port, local):
     from backend.server import app
     app.run(host=url, port=port)
     logger.info("Deployed: {}".format(hosted_url))
+
+@click.command()
+def generate_db():
+    from backend.client import seed
+    seed()

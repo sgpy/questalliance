@@ -10,11 +10,6 @@ ___
 2. Install [pip](https://pip.pypa.io/en/stable/installing) (If applicable)
 
 3. Upgrade [pip](https://pip.pypa.io/en/stable/installing/#upgrading-pip) (If applicable)
-
-3. Download [ngrok](https://ngrok.com/download) as per your OS
-
-4. Uncompress
-    > Keep a note of the directory
    
 
 ### Verification
@@ -46,20 +41,22 @@ ___
 5. `source .tox/py3/bin/activate`
     > Activate the virtual environment    
 
-6. `ngrok http 5000`
-    > From your folder hosting uncompressed binary
+
     
 ### Running backend server (Optional)    
 
-1. `deploy_backend_server`
-    > Runs the mock backend server (powered by sqllite)
+-  `generate_db;deploy_backend_server --port 1234`
+    > Runs the mock backend server
+    
+-   `deploy_backend_server --help`
+    > Will provide help
 
 ### Running relay server
     
-1. `deploy_relay_server`
+-  `deploy_relay_server --port 5000  --backend_host_name  localhost --backend_host_port 1234`
     > Connects to dialogflow server
-    
 
+-  `deploy_relay_server --help`
 
 
 ### Sandboxing

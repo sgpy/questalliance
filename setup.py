@@ -15,5 +15,6 @@ setup(
         [console_scripts]
         deploy_relay_server=commands.server:deploy_relay_server
         deploy_backend_server=commands.server:deploy_backend_server
+        generate_db=commands.server:generate_db
     ''',
 )

@@ -9,6 +9,7 @@ from backend.data import load_sudent_data, load_languages, load_courses
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 DB = dir_path + '/questalliance.db'
+DB = 'questalliance.db'
 
 COURSES = ["tk_pk_id",  "tk_tags", "tk_name", "tk_description", "language", "url", "tk_image"]
 
