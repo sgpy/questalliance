@@ -198,21 +198,16 @@ def welcome(req_json):
     logging.info('Welcome')
     req_json = request.get_json(force=True)
     logging.info('RESET QUEST CONTEXT')
-    reset_context(req_json)
-    return question_and_answer(req_json)
-
-
-def id_confirmation(req_json):
-    logging.info('id_confirmation')
-    question, user_id = _fetch_user_input(req_json) # further processing
-    text = req_json.get('queryResult').get('fulfillmentText')
+    user_id = _search_user_id_in_welcome(req_json)
     username = getNameFromID(user_id)
+    reset_context(req_json)
     answers = _give_me_cache_space(req_json)
     answers.update({'user_id': user_id,
                     'user_name': username})
-
-    text = req_json.get('queryResult').get('fulfillmentText')
+    logging.info('user_id: %s' % user_id)
+    logging.info('user_name: %s' % username)
     if getSurveyStatus(user_id) == '1':
+        logging.info('getSurveyStatus: 1')
         event_context = {
           'name': 'trigger_help',
           'parameters': {
@@ -221,10 +216,13 @@ def id_confirmation(req_json):
         }
         req_json.update({'followupEventInput': event_context})
     else:
+        logging.info('getSurveyStatus: 0')
+        text = req_json.get('queryResult').get('fulfillmentText')
         greeting = 'Hello {0}! '.format(username) + text
         req_json['queryResult']['fulfillmentText'] = greeting
 
     return question_and_answer(req_json)
+
 
 
 def language_confirmation(req_json):
@@ -360,7 +358,6 @@ def question_and_answer(req_json):
 
 intent_map = {
                 'Default Welcome Intent': welcome,
-                'ID Confirmation': id_confirmation,
                 'Source Confirmation': question_and_answer,
                 'Source Invalid': question_and_answer,
                 'Survey Confirmation': question_and_answer,
@@ -404,6 +401,22 @@ def _give_me_cache_space(req_json):
         }
         output_contexts.append(quest_context)
     return quest_context['parameters']['answers']
+
+
+def _search_user_id_in_welcome(req_json):
+    output_contexts = req_json.get('queryResult').get('outputContexts')
+
+    # context_name pattern: 'projects/$bot_id/agent/sessions/$session_id/contexts/quest_context'
+    prefix = output_contexts[0]['name'].split('/')[:-1]
+    quest_context_name = '/'.join(prefix + ['welcome'])
+
+    quest_context = None
+    for context in output_contexts:
+        if context.get('name', '') == quest_context_name:
+            quest_context = context
+            break
+
+    return quest_context['parameters']['user_id'] if quest_context else None
 
 
 def saveQuestContext(req_json, user_input):
