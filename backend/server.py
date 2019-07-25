@@ -19,7 +19,7 @@ def ping():
 def process(user):
     try:
         req_json = request.get_json(force=True)
-        with open('survey.log', 'w+') as f:
+        with open('survey.log', 'a+') as f:
             for qna in req_json.get('Q&A'):
                 f.write('Q: %s \n' % qna.get('Question'))
                 f.write('  O: %s \n' % qna.get('Options'))
