@@ -8,7 +8,7 @@ import json
 import collections
 import requests
 import os
-from assets.CourseApi import find_courses
+from assets.endpoints import endpoint, DEBUG
 from assets.Course import Course
 
 # Read env variables from .env file
@@ -180,20 +180,6 @@ def _suggestion_payload_wrapper(options):
     return feedback
 
 
-def getNameFromID(user_id):
-    logging.info('getNameFromID({user_id})'.format(user_id=user_id))
-    URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(user_id)
-    r = requests.get(url=URL)
-    return r.json()['student_data']['stud_first_name']
-
-
-def getSurveyStatus(user_id):
-    logging.info('getSurveyStatus({user_id})'.format(user_id=user_id))
-    URL = 'http://13.234.3.75/quest_app/app/api/users/get_student_data/{0}'.format(user_id)
-    r = requests.get(url=URL)
-    return r.json()['student_data']['survey_status']
-
-
 def welcome(req_json):
     logging.info('Welcome')
     req_json = request.get_json(force=True)
@@ -206,13 +192,13 @@ def id_confirmation(req_json):
     logging.info('id_confirmation')
     question, user_id = _fetch_user_input(req_json) # further processing
     text = req_json.get('queryResult').get('fulfillmentText')
-    username = getNameFromID(user_id)
+    username = endpoint.getNameFromID(user_id)
     answers = _give_me_cache_space(req_json)
     answers.update({'user_id': user_id,
                     'user_name': username})
 
     text = req_json.get('queryResult').get('fulfillmentText')
-    if getSurveyStatus(user_id) == '1':
+    if endpoint.getSurveyStatus(user_id) == '1':
         event_context = {
           'name': 'trigger_help',
           'parameters': {
@@ -315,7 +301,7 @@ def question_and_answer(req_json):
 
         logging.info('Finding course for ', query)
 
-        courses = find_courses(query)
+        courses = endpoint.find_courses(query)
         for course in courses.get('data'):
             logging.info('  course: %s' % course)
             courseobj = Course(course.get('tk_pk_id'),
@@ -451,7 +437,7 @@ def questbot():
                           'name': 'projects/qabotlocal-voalga/agent/sessions/35938982-36c6-8225-3b09-1933c06a52a9/contexts/quest_context',
                           'parameters': {'answers': {}}}]]}
     """
-    logging.info('questbot')
+    logging.info('/////////// Questbot %s ////////////' % '(MOCK)' if DEBUG else '(QUEST)')
     req_json = request.get_json(force=True)
     question, user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
