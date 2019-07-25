@@ -24,7 +24,7 @@ def process(user):
                 f.write('Q: %s \n' % qna.get('Question'))
                 f.write('  O: %s \n' % qna.get('Options'))
                 f.write('  A: %s \n\n' % qna.get('Answer'))
-            f.write('=' * 100)
+            f.write('=================================================\n')
 
         user = int(user)
         survey_complete(user)
