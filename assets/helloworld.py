@@ -213,15 +213,6 @@ def id_confirmation(req_json):
     return question_and_answer(req_json)
 
 
-def language_confirmation(req_json):
-    logging.info('language_confirmation')
-    answers = _give_me_cache_space(req_json)
-    user_id = answers.get('user_id')
-    URL = 'http://127.0.0.1:1234/api/sink/mark_survey_complete/{0}'.format(user_id)
-    r = requests.post(url=URL, data=json.dumps(answers), headers={'Content-Type': 'application/json'})
-    return question_and_answer(req_json)
-
-
 def get_payload_from_message(req_json):
     fullfilmentMessages = req_json.get('queryResult').get('fulfillmentMessages')
     # Grab the payload from the message
@@ -365,7 +356,7 @@ intent_map = {
                 'Facebook Invalid': question_and_answer,
                 'Whatsapp Confirmation': question_and_answer,
                 'Whatsapp Invalid': question_and_answer,
-                'Language Confirmation': language_confirmation,
+                'Language Confirmation': question_and_answer,
             }
 
 def _give_me_cache_space(req_json):
@@ -422,6 +413,24 @@ def ping():
     return "Relay: {}".format(str(uuid4()))
 
 
+def _cache_survey_QOA(req_json, key_intent):
+    # try to cache intents flow and Question,Options,Answer together
+    answers = _give_me_cache_space(req_json)
+    if 'intents_flow' not in answers:
+        answers['intents_flow'] = []
+
+    last_intent = answers['intents_flow'][-1] if answers['intents_flow'] else None
+    answers['intents_flow'].append(key_intent)
+
+    if last_intent:
+        question, user_input = _fetch_user_input(req_json)
+        answers[last_intent]['Answer'] = user_input
+    next_question = req_json.get('queryResult').get('fulfillmentText')
+    answers[key_intent] = { 'Question': next_question,
+                            'Options': get_quick_replies_from_messages(req_json),
+                            'Answer': None }
+
+
 @app.route('/api/endpoint', methods=['GET', 'POST'])
 def questbot():
     """
@@ -439,14 +448,27 @@ def questbot():
     """
     logging.info('/////////// Questbot %s ////////////' % '(MOCK)' if DEBUG else '(QUEST)')
     req_json = request.get_json(force=True)
-    question, user_input = _fetch_user_input(req_json)
     intent = _fetch_intent(req_json)
-    saveQuestContext(req_json, {question: user_input})
+
 
     if intent in intent_map:
         response_json = intent_map.get(intent)(req_json)
         output_contexts = req_json.get('queryResult').get('outputContexts')
         response_json.update({'output_contexts': output_contexts})
+        _cache_survey_QOA(req_json, key_intent=intent)
+
+        if intent == 'Language Confirmation':
+            answers = _give_me_cache_space(req_json)
+            user_id = answers.get('user_id')
+
+            copy_answer = {'Q&A': []}
+            for x in answers['intents_flow'][:-1]:
+                print('Q: %s' % answers.get(x).get('Question'))
+                print('  O: %s' % answers.get(x).get('Options'))
+                print('  A: %s' % answers.get(x).get('Answer'))
+                copy_answer.get('Q&A').append(answers.get(x))
+            endpoint.saveSurveyResult(user_id, copy_answer)
+
         return make_response(jsonify(response_json))
 
     # Construct a default response if no intent match is found
