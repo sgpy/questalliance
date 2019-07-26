@@ -1,13 +1,14 @@
 tk_pk_id,tk_tags,tk_name,tk_description,language,url,tk_image
-1,#Communicative English Basic,Learn Basic English,,English,,
-2,#Communicative English - Advanced (I),Learn Advanced English - Part 1,,English,,
-3,#Communicative English - Advanced (II),Learn Advanced English - Part 2,,English,,
-4,#Communicative English - Advanced (III),Learn Advanced English - Part 3,,English,,
-5,#Introduction to Digital World,Digital World for Dummies,,English,,
-6,#Exploring the Digital World,Digital World Explained,,,,
-7,#Introduction to Career Development,How to shape your career,,,,
-8,#Understanding Self,Your Inner Self,,,https://www.youtube.com/watch?v=tGdsOXZpyWE,https://images.unsplash.com/photo-1562184647-6deac529d456?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2734&q=80
-9,#Gender and Career,Careers best suited to you,,,,
+1,#Communicative English Basic,Learn Basic English,"This course teaches English articles, pronouns, prepositions, adjectives, etc. It is perfect to help you improve your English speaking, listening, writing, and reading.",English,https://youtu.be/AVYfyTvc9KY,https://i.ytimg.com/vi/V39bKNRCV0g/maxresdefault.jpg
+2,#Communicative English - Advanced (I),Learn Advanced English - Part 1,"
+Have a deep knowledge of advanced English grammar",English,https://youtu.be/UyXqP3TklFc,https://i.ytimg.com/vi/UyXqP3TklFc/maxresdefault.jpg
+3,#Communicative English - Advanced (II),Learn Advanced English - Part 2,Perfect your listening skills through practing different accents,English,https://youtu.be/cdgaDU6qbc8,https://i.ytimg.com/vi/cdgaDU6qbc8/maxresdefault.jpg
+4,#Communicative English - Advanced (III),Learn Advanced English - Part 3,Improve your speaking to have fluent conversations,English,https://youtu.be/teYXn6w5NhU,https://i.ytimg.com/vi/teYXn6w5NhU/maxresdefault.jpg
+5,#Introduction to Digital World,Digital World for Dummies,Digital technologies are changing extraordinarily quickly. This course will introduce you to the new digital landscape.,English,https://youtu.be/llwBHCZs6hA,https://i.ytimg.com/vi/llwBHCZs6hA/hqdefault.jpg
+6,#Exploring the Digital World,Digital World Explained,What are the consequences of this pervasive digital environment? Will it impact how children learn to read the emotions and behaviors of others? What is the effect on learning and our ability to pass on knowledge? This course explores what it means to be a social human in the digital age.,English,https://youtu.be/ndTDLOcYHRM,https://i.ytimg.com/vi/ndTDLOcYHRM/maxresdefault.jpg
+7,#Introduction to Career Development,How to shape your career,What career do you want to be in? Perhaps it is time to get started setting your career goals. Watch this course to learn about different stages of career planning and how they can help you capture the career you want.,English,https://youtu.be/zBjDuTVZ1Hk,https://educationupdatesonline.files.wordpress.com/2013/11/career.jpg
+8,#Understanding Self,Your Inner Self,Experience a journey that will allow you to reconnect with your inner self. This course guides on this gentle journey that will allow you to experience a renewal of self and energy so that you can move forward in life.,English,https://youtu.be/t7JDEQRTru8,https://i.ytimg.com/vi/CcBFYyTjFfs/maxresdefault.jpg
+9,#Gender and Career,Careers best suited to you,"Whether you are starting out your career journey or are sick of your industry and looking to make a change, it can be hard picking the right career path. It is a stressful decision and sometimes the fear of picking the wrong one paralyzes people into complete inaction. This course helps you decide what career is the right one for you so you are confident in your choice.",English,https://youtu.be/1DVM2Xbx5Ks,https://i.ytimg.com/vi/1DVM2Xbx5Ks/maxresdefault.jpg
 10,#Professional Identity,,,,,
 11,#Self Expression,,,,,
 12,#Career Research,,,,,
@@ -16,17 +17,17 @@ tk_pk_id,tk_tags,tk_name,tk_description,language,url,tk_image
 15,#Work Skills - After Getting a Job,How to excel in your Job?,,,,
 16,#Retail and Customer Interaction,Customer is the King,,,,
 17,#Introduction to Career Development,How to shape your career,,,,
-18,#Understanding Self,Your Inner Self,,,https://www.youtube.com/watch?v=tGdsOXZpyWE,https://images.unsplash.com/photo-1562184647-6deac529d456?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2734&q=80
+18,#Understanding Self,Your Inner Self,,,,
 19,#Gender and Career,Careers best suited to you,,,,
 20,#Professional Identity,,,,,
 21,#Self Expression,,,,,
 22,#Career Research,,,,,
 23,#Career Plan,How to be successful?,,,,
-24,# My Career (English),Career Guidance,,English,,
-25,# My Career (Gujarati),Career Guidance,,Gujrati,,
-26,# My Career (Hindi),Career Guidance,,Hindi,,
-27,# My Career (Tamil),Career Guidance,,Tamil,,
-28,# My Career (Kannada),Career Guidance,,Kannada,,
-29,# My Career (Telugu),Career Guidance,,Telugu,,
-30,# My Career (Malayalam),Career Guidance,,Malayalam,,
+24,# My Career (English),Career Guidance,"The majority of working people, by their own admission, do not feel fully challenged by their current jobs. If you find yourself in that position, you may want to consider a new career path. It can be scary, but hopefully, with some guidance, that decision will become more within your reach. ",English,https://youtu.be/oB-1qocZiPM,https://i.ytimg.com/vi/p2UWRBrjUJU/maxresdefault.jpg
+25,# My Career (Gujarati),Career Guidance,,Gujrati,https://youtu.be/qKjtg7iZT0M,
+26,# My Career (Hindi),Career Guidance,,Hindi,https://youtu.be/SToZ_VqzZBA,
+27,# My Career (Tamil),Career Guidance,,Tamil,https://youtu.be/Ujb0pdtwlTg,https://i.ytimg.com/vi/Ujb0pdtwlTg/hqdefault.jpg
+28,# My Career (Kannada),Career Guidance,,Kannada,https://youtu.be/bMmFgfROo60,
+29,# My Career (Telugu),Career Guidance,,Telugu,https://youtu.be/HaVrX2DZewQ,https://i.ytimg.com/vi/HaVrX2DZewQ/hqdefault.jpg
+30,# My Career (Malayalam),Career Guidance,,Malayalam,https://youtu.be/ACdKYFtJsDM,https://i.ytimg.com/vi/ACdKYFtJsDM/maxresdefault.jpg
 31,#Self Employment (Hindi),Start your own business,,,,
