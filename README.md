@@ -10,6 +10,9 @@ ___
 2. Install [pip](https://pip.pypa.io/en/stable/installing) (If applicable)
 
 3. Upgrade [pip](https://pip.pypa.io/en/stable/installing/#upgrading-pip) (If applicable)
+
+4. Download [ngrok as per your OS](https://ngrok.com/download) & unzip
+
    
 
 ### Verification
@@ -45,7 +48,7 @@ ___
     
 ### Running backend server (Optional)    
 
--  `generate_db;deploy_backend_server --port 1234`
+-  `generate_db;deploy_backend_server --port 5001`
     > Runs the mock backend server
     
 -   `deploy_backend_server --help`
@@ -53,11 +56,14 @@ ___
 
 ### Running relay server
     
--  `deploy_relay_server --port 5000  --backend_host_name  localhost --backend_host_port 1234`
+-  `deploy_relay_server --port 5000  --backend_host_name  localhost --backend_host_port 5001`
     > Connects to dialogflow server
 
 -  `deploy_relay_server --help`
 
+### Running ngrok
+- `ngrok http 5000`
+    > Copy the https://\<sha\>.ngrok.io/api/endpoint to the Fulfillment > Webhook > URL 
 
 ### Sandboxing
 > (Optional: For security sensitive developers)
