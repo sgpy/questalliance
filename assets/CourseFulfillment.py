@@ -5,7 +5,7 @@ import json
 import collections
 import requests
 import os
-from CourseApi import find_courses
+from endpoints import endpoint
 from Course import Course
 import json
 from collections import namedtuple
@@ -44,7 +44,7 @@ def init():
     data = {
         'tags': '#Understanding Self'
     }
-    courses = find_courses(data)
+    courses = endpoint.find_courses(data)
     for course in courses.get('data'):
 
         courseobj= Course(course.get('tk_pk_id'),

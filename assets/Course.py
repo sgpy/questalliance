@@ -1,4 +1,4 @@
-from assets.CourseApi import find_courses
+from assets.endpoints import endpoint
 class Course:
     def __init__(self,tk_pk_id,tk_tags,tk_name,tk_description,language,url,tk_image):
         self.name=tk_name
@@ -69,7 +69,7 @@ def main():
     data = {
         'tags': '#Understanding Self'
     }
-    courses = find_courses(data)
+    courses = endpoint.find_courses(data)
     for course in courses.get('data'):
         courseobj = Course(course.get('tk_pk_id'),
                            course.get('tk_tags'),
