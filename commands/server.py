@@ -32,7 +32,7 @@ def deploy_relay_server(port, backend_host_name, backend_host_port, local):
     logger.info("Deployed: {}".format(hosted_url))
 
     logger.info("Backend Host: {} Port: {}...".format(backend_host_name, backend_host_port))
-    from assets.helloworld import app
+    from assets.questbot import app
     app.run(host=url, port=port)
 
 
