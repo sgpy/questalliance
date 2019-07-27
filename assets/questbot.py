@@ -8,7 +8,7 @@ import json
 import collections
 import requests
 import os
-from assets.endpoints import endpoint, DEBUG
+from assets.endpoints import endpoint
 from assets.Course import Course
 
 # Read env variables from .env file
@@ -446,7 +446,7 @@ def questbot():
                           'name': 'projects/qabotlocal-voalga/agent/sessions/35938982-36c6-8225-3b09-1933c06a52a9/contexts/quest_context',
                           'parameters': {'answers': {}}}]]}
     """
-    logging.info('/////////// Questbot %s ////////////' % '(MOCK)' if DEBUG else '(QUEST)')
+    logging.info('/////////// Questbot %s ////////////' % os.getenv('backend_host_name'))
     req_json = request.get_json(force=True)
     intent = _fetch_intent(req_json)
 

@@ -1,6 +1,7 @@
 import logging
 
 import click
+import os
 
 logging.basicConfig(filename='app.log', level=logging.DEBUG)
 
@@ -32,6 +33,8 @@ def deploy_relay_server(port, backend_host_name, backend_host_port, local):
     logger.info("Deployed: {}".format(hosted_url))
 
     logger.info("Backend Host: {} Port: {}...".format(backend_host_name, backend_host_port))
+    os.environ['backend_host_name'] = backend_host_name
+    os.environ['backend_host_port'] = str(backend_host_port)
     from assets.questbot import app
     app.run(host=url, port=port)
 

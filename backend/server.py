@@ -15,7 +15,7 @@ def ping():
     from uuid import uuid4
     return "Backend: {}".format(str(uuid4()))
 
-@app.route('/api/sink/mark_survey_complete/<user>', methods=['POST'])
+@app.route('/quest_app/app/api/users/uploadSurveyResult/<user>', methods=['POST'])
 def process(user):
     try:
         req_json = request.get_json(force=True)
@@ -36,8 +36,8 @@ def process(user):
         return msg
 
 
-@app.route('/api/sink/find_courses/<user>', methods=['POST'])
-def find_courses(user):
+@app.route('/quest_app/app/api/users/getTagsCourse', methods=['POST'])
+def find_courses():
     req_json = request.get_json(force=True)
     tags = req_json.get("tags")
     tags = tags.split(",")
@@ -48,7 +48,7 @@ def find_courses(user):
     return make_response(jsonify(resp))
 
 
-@app.route('/api/sink/user_info/<user>', methods=['GET'])
+@app.route('/quest_app/app/api/users/get_student_data/<user>', methods=['GET'])
 def user_info(user):
     user = int(user)
     user_info = find_user_info([user])
