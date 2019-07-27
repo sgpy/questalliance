@@ -3,7 +3,7 @@ import csv
 
 def generate(file_name):
     rs = []
-    with open(file_name) as f:
+    with open(file_name, encoding='utf-8') as f:
         for line in f:
             reader = csv.reader(f, dialect="excel")
             for index, _ in enumerate(reader):
