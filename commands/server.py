@@ -32,6 +32,8 @@ def deploy_relay_server(port, backend_host_name, backend_host_port, local):
     hosted_url, url = resolve_hosted_url(port, local=local)
     logger.info("Deployed: {}".format(hosted_url))
 
+    if not backend_host_name.startswith('http'):
+        backend_host_name = 'http://' + backend_host_name
     logger.info("Backend Host: {} Port: {}...".format(backend_host_name, backend_host_port))
     os.environ['backend_host_name'] = backend_host_name
     os.environ['backend_host_port'] = str(backend_host_port)
