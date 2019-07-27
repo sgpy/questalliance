@@ -463,9 +463,6 @@ def questbot():
 
             copy_answer = {'Q&A': []}
             for x in answers['intents_flow'][:-1]:
-                print('Q: %s' % answers.get(x).get('Question'))
-                print('  O: %s' % answers.get(x).get('Options'))
-                print('  A: %s' % answers.get(x).get('Answer'))
                 copy_answer.get('Q&A').append(answers.get(x))
             endpoint.saveSurveyResult(user_id, copy_answer)
 
